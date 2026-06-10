@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ship Wallet ⚓ ארנק ספינתי</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f0f14;--surface:#1c1c24;--card:#ffffff;--card2:#f4f6f9;
+  --accent:#00d4aa;--accent2:#00b894;--text-dark:#111318;--text-mid:#6b7280;
+  --text-light:#ffffff;--danger:#ff4757;--success:#00d4aa;
+  --border:rgba(255,255,255,0.06);--shadow:0 4px 24px rgba(0,0,0,0.35);
+  --font-h:'SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --font-b:'SF Pro Text',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+  --r:20px;--r-sm:12px
+}
+html,body{min-height:100vh;background:var(--bg);color:var(--text-light);font-family:var(--font-b);font-size:16px}
+.app{max-width:760px;margin:0 auto;padding:24px 16px 80px}
+
+/* masthead */
+.masthead{text-align:center;padding-bottom:20px;margin-bottom:8px;border-bottom:none}
+.masthead h1{font-size:28px;font-weight:700;color:var(--text-light);letter-spacing:2px;font-family:var(--font-h)}
+.masthead h1::after{content:' ⚓';font-size:22px}
+.masthead p{font-size:13px;color:rgba(255,255,255,0.4);margin-top:4px;letter-spacing:.5px}
+
+/* section title */
+.sec{font-size:11px;letter-spacing:1.5px;color:rgba(255,255,255,0.35);text-transform:uppercase;
+  margin:24px 0 10px;font-family:var(--font-h);font-weight:600;
+  display:flex;align-items:center;justify-content:space-between;border-left:none;padding-left:0}
+.sec span{border-left:none;padding-left:0}
+
+/* panels */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:20px;margin-bottom:14px;box-shadow:var(--shadow)}
+
+/* wallet ring */
+.wallet-ring{display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap}
+.donut-wrap{position:relative;width:120px;height:120px;flex-shrink:0}
+.donut-wrap canvas{width:120px!important;height:120px!important}
+.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+.donut-center .big{font-size:22px;font-weight:700;color:var(--accent);font-family:var(--font-h)}
+.wallet-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1;min-width:220px}
+.stat{background:rgba(255,255,255,0.04);border-radius:var(--r-sm);padding:14px 16px;border:1px solid var(--border)}
+.stat .lbl{font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;font-family:var(--font-h);font-weight:600}
+.stat .val{font-size:22px;color:var(--text-light);font-weight:700;margin-top:4px;direction:ltr;unicode-bidi:isolate}
+.stat .sub{font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px}
+.pbar{height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;margin-top:10px}
+.pbar-fill{height:100%;border-radius:3px;transition:width .7s ease,background .4s}
+
+/* forms */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.f{display:flex;flex-direction:column;gap:6px}
+.f.full{grid-column:1/-1}
+.f label{font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:.8px;text-transform:uppercase;font-family:var(--font-h);font-weight:600}
+.f input,.f select{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+  border-radius:var(--r-sm);padding:11px 14px;color:var(--text-light);font-family:var(--font-b);
+  font-size:15px;outline:none;width:100%;transition:border-color .2s}
+.f input:focus,.f select:focus{border-color:var(--accent)}
+.f select option{background:#1c1c24}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-h);font-size:12px;font-weight:600;
+  letter-spacing:.5px;border-radius:50px;padding:10px 20px;cursor:pointer;transition:all .2s;border:1px solid}
+.btn-primary{background:var(--accent);border-color:var(--accent);color:#000;width:100%;
+  justify-content:center;margin-top:14px;font-size:14px;padding:13px;border-radius:var(--r-sm)}
+.btn-primary:hover{background:var(--accent2);border-color:var(--accent2);transform:translateY(-1px)}
+.btn-sm{padding:6px 14px;font-size:11px;border-color:rgba(255,255,255,0.15);
+  color:rgba(255,255,255,0.6);background:rgba(255,255,255,0.05)}
+.btn-sm:hover{border-color:var(--accent);color:var(--accent)}
+.btn-danger{border-color:rgba(255,71,87,0.3);color:var(--danger);background:transparent}
+.btn-danger:hover{background:rgba(255,71,87,0.1)}
+
+/* sailors */
+.sailor-row{display:flex;gap:8px;align-items:center;padding:8px 0;
+  border-bottom:1px solid rgba(255,255,255,0.05);flex-wrap:wrap}
+.sailor-row:last-child{border-bottom:none}
+.sailor-name{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+  border-radius:var(--r-sm);padding:8px 12px;color:var(--text-light);font-family:var(--font-b);
+  font-size:14px;outline:none;flex:1;min-width:100px}
+.sailor-name:focus{border-color:var(--accent)}
+.sailor-paid{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,0.4);
+  font-family:var(--font-h);white-space:nowrap;cursor:pointer}
+.sailor-paid input[type=checkbox]{width:15px;height:15px;accent-color:var(--accent);cursor:pointer}
+.btn-del-row{background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.2);
+  font-size:20px;line-height:1;padding:0 4px;transition:color .2s;flex-shrink:0}
+.btn-del-row:hover{color:var(--danger)}
+.sailors-summary{font-size:12px;color:rgba(255,255,255,0.35);margin-top:10px;line-height:1.8}
+
+/* chart */
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,0.5)}
+.legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
+
+/* filters */
+.filter-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
+.fbtn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:50px;
+  padding:6px 14px;color:rgba(255,255,255,0.5);font-size:11px;cursor:pointer;font-family:var(--font-h);
+  font-weight:600;letter-spacing:.3px;transition:all .2s}
+.fbtn.active{background:var(--accent);border-color:var(--accent);color:#000}
+
+/* ledger */
+.ledger{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow)}
+.ledger-head{display:grid;grid-template-columns:78px 1fr 94px 74px 52px;gap:6px;
+  padding:10px 16px;background:rgba(255,255,255,0.03);font-size:10px;letter-spacing:1px;
+  color:rgba(255,255,255,0.3);font-family:var(--font-h);font-weight:600;text-transform:uppercase}
+.ledger-row{display:grid;grid-template-columns:78px 1fr 94px 74px 52px;gap:6px;
+  padding:12px 16px;border-top:1px solid rgba(255,255,255,0.04);align-items:center;
+  font-size:14px;transition:background .15s}
+.ledger-row:hover{background:rgba(255,255,255,0.03)}
+.badge{font-size:10px;padding:4px 8px;border-radius:50px;display:inline-block;
+  font-family:var(--font-h);font-weight:600;letter-spacing:.3px;white-space:nowrap}
+.amt{text-align:right;color:var(--text-light);font-weight:700;direction:ltr;unicode-bidi:isolate}
+.row-actions{display:flex;gap:4px;justify-content:flex-end}
+.btn-icon{background:none;border:none;cursor:pointer;font-size:15px;padding:3px;
+  color:rgba(255,255,255,0.2);transition:color .2s;line-height:1}
+.btn-icon:hover{color:var(--accent)}
+.btn-icon.del:hover{color:var(--danger)}
+.empty{text-align:center;padding:36px;color:rgba(255,255,255,0.25);font-style:italic;font-size:15px}
+
+/* modal */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;
+  display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px)}
+.modal-bg.hidden{display:none}
+.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
+  padding:24px;width:100%;max-width:480px;box-shadow:var(--shadow)}
+.modal h3{font-family:var(--font-h);color:var(--text-light);font-size:15px;font-weight:700;
+  letter-spacing:.5px;margin-bottom:18px}
+.modal-actions{display:flex;gap:8px;margin-top:18px;justify-content:flex-end}
+
+/* setup banner */
+.setup-banner{background:rgba(255,165,0,0.08);border:1px solid rgba(255,165,0,0.25);
+  border-radius:var(--r-sm);padding:16px;margin-bottom:16px;font-size:13px;color:#ffa500;line-height:1.7}
+.setup-banner strong{font-size:11px;letter-spacing:1px;color:#ffb732;font-family:var(--font-h)}
+.setup-banner input{background:rgba(255,255,255,0.06);border:1px solid rgba(255,165,0,0.3);
+  border-radius:8px;padding:8px 12px;color:var(--text-light);font-size:13px;width:100%;
+  margin-top:6px;outline:none;font-family:monospace}
+
+/* sync bar */
+.sync-bar{display:flex;align-items:center;gap:8px;font-size:11px;font-family:var(--font-h);
+  font-weight:600;letter-spacing:.5px;color:rgba(255,255,255,0.3);padding:8px 0;margin-bottom:8px}
+.sync-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2);flex-shrink:0;transition:background .3s}
+.sync-dot.ok{background:var(--success)}
+.sync-dot.err{background:var(--danger)}
+.sync-dot.spin{background:var(--accent);animation:pulse .8s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* lock notice */
+#lockNotice{text-align:center;margin-top:12px;font-size:12px;color:rgba(255,255,255,0.35);font-family:var(--font-h)}
+#lockNotice span{color:var(--accent);cursor:pointer}
+#lockNotice span:hover{text-decoration:underline}
+
+/* toast */
+.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(60px);
+  background:var(--surface);border:1px solid var(--accent);border-radius:50px;
+  padding:10px 24px;color:var(--accent);font-family:var(--font-h);font-size:12px;font-weight:600;
+  letter-spacing:.5px;opacity:0;transition:all .35s;pointer-events:none;z-index:999;white-space:nowrap;
+  box-shadow:0 8px 32px rgba(0,212,170,0.2)}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+.bottom-bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+
+/* Euro fix */
+.val,.amt{direction:ltr;unicode-bidi:isolate}
+
+@media(max-width:520px){
+  .fg{grid-template-columns:1fr}.f.full{grid-column:1}
+  .ledger-head,.ledger-row{grid-template-columns:66px 1fr 80px 62px 44px;gap:4px;padding:8px 10px;font-size:13px}
+  .wallet-ring{flex-direction:column}.wallet-stats{width:100%}
+}
+</style>
+
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0a1628">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ship Wallet">
+<link rel="apple-touch-icon" href="icon-512.png">
+</head>
+
+<body>
+<div class="app">
+
+  <div class="masthead">
+    <h1>⚓ SHIP WALLET</h1>
+    <p>ארנק ספינתי</p>
+  </div>
+
+
+  <!-- SYNC STATUS -->
+  <div class="sync-bar">
+    <div class="sync-dot" id="syncDot"></div>
+    <span id="syncMsg">לא מחובר</span>
+    <button class="btn btn-sm" style="margin-right:auto" onclick="loadAll()">↺ רענן</button>
+  </div>
+
+  <!-- WALLET OVERVIEW -->
+  <div class="panel">
+    <div class="wallet-ring">
+      <div class="donut-wrap">
+        <canvas id="donutChart"></canvas>
+        <div class="donut-center"><span class="big" id="pct">—</span></div>
+      </div>
+      <div class="wallet-stats">
+        <div class="stat">
+          <div class="lbl">תקציב</div>
+          <div class="val" id="statTotal"><span dir="ltr">€0</span></div>
+          <div class="sub" id="statSub">—</div>
+        </div>
+        <div class="stat">
+          <div class="lbl">הוצאות</div>
+          <div class="val" id="statSpent"><span dir="ltr">€0</span></div>
+          <div class="sub" id="statCount">0 קבלות</div>
+        </div>
+        <div class="stat" style="grid-column:1/-1">
+          <div class="lbl">יתרה</div>
+          <div class="val" id="statRemain"><span dir="ltr">€0</span></div>
+          <div class="pbar"><div class="pbar-fill" id="pbarFill" style="width:100%;background:var(--success)"></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- VOYAGE SETTINGS -->
+  <div class="sec"><span>⚓ הגדרות הפלגה</span></div>
+  <div class="panel">
+    <div class="f" style="margin-bottom:12px">
+      <label>שם ההפלגה</label>
+      <input type="text" id="cfgName" value="הפלגה 2025" oninput="scheduleConfigSave()">
+    </div>
+    <div id="paymentRounds"></div>
+    <button class="btn btn-sm" style="margin-top:10px" onclick="addPaymentRound()">+ הוסף סבב גבייה נוסף</button>
+  </div>
+
+  <!-- SAILORS -->
+  <div class="sec">
+    <span>🧑‍✈️ ניהול מפליגים</span>
+    <button class="btn btn-sm" onclick="toggleSailors()" id="sailorsToggleBtn" style="margin:0;border-left:none">▼ הצג</button>
+  </div>
+  <div class="panel" id="sailorsPanel" style="display:none">
+    <div id="sailorsList"></div>
+    <div class="sailors-summary" id="sailorsSummary"></div>
+    <button class="btn btn-sm" style="margin-top:12px" onclick="addSailor()">+ הוסף מפליג</button>
+  </div>
+
+  <!-- ADD RECEIPT -->
+  <div class="sec"><span>📋 הוספת הוצאה</span></div>
+  <div class="panel">
+    <div class="fg">
+      <div class="f"><label>סוג הוצאה</label>
+        <select id="fCat">
+          <option value="super">🛒 מזון</option>
+          <option value="alco">🍺 אלכוהול</option>
+          <option value="port">⚓ מיסי נמל / עגינה</option>
+          <option value="fuel">⛽ דלק</option>
+          <option value="marina">🔌 מים / חשמל</option>
+          <option value="trans">🚐 הסעות</option>
+          <option value="other">📌 אחר</option>
+        </select>
+      </div>
+      <div class="f"><label>סכום (€)</label>
+        <input type="number" id="fAmount" placeholder="0.00" min="0" step="0.01" inputmode="decimal">
+      </div>
+      <div class="f"><label>תאריך</label><input type="date" id="fDate"></div>
+      <div class="f"><label>מיקום / נמל</label><input type="text" id="fLocation" placeholder="לדוגמה: קורפו"></div>
+      <div class="f full"><label>הערות (אופציונלי)</label><input type="text" id="fNotes" placeholder="פירוט הוצאה"></div>
+    </div>
+    <button class="btn btn-primary" id="addBtn" onclick="addEntry()">+ רשום הוצאה</button>
+    <div id="lockNotice" style="display:none;text-align:center;margin-top:10px;font-size:12px;color:var(--rope);font-family:var(--font-h)">
+      🔒 <span style="cursor:pointer;text-decoration:underline" onclick="promptUnlock()">לחץ לפתיחת מנעול להזנה</span>
+    </div>
+  </div>
+
+  <!-- CHART -->
+  <div class="sec"><span>📊 התפלגות הוצאות</span></div>
+  <div class="panel">
+    <div style="position:relative;height:200px"><canvas id="barChart"></canvas></div>
+    <div class="legend" id="legend"></div>
+  </div>
+
+  <!-- LEDGER -->
+  <div class="sec"><span>🗒 יומן הוצאות</span></div>
+  <div class="filter-row">
+    <button class="fbtn active" onclick="setFilter(this,'all')">הכל</button>
+    <button class="fbtn" onclick="setFilter(this,'super')">🛒 מזון</button>
+    <button class="fbtn" onclick="setFilter(this,'alco')">🍺 אלכוהול</button>
+    <button class="fbtn" onclick="setFilter(this,'port')">⚓ נמל</button>
+    <button class="fbtn" onclick="setFilter(this,'fuel')">⛽ דלק</button>
+    <button class="fbtn" onclick="setFilter(this,'marina')">🔌 מרינה</button>
+    <button class="fbtn" onclick="setFilter(this,'trans')">🚐 הסעות</button>
+    <button class="fbtn" onclick="setFilter(this,'other')">📌 אחר</button>
+  </div>
+  <div class="ledger">
+    <div class="ledger-head"><span>תאריך</span><span>מיקום / פירוט</span><span>קטגוריה</span><span style="text-align:right">סכום</span><span></span></div>
+    <div id="ledgerBody"></div>
+  </div>
+
+  <div class="bottom-bar">
+    <button class="btn btn-sm" onclick="exportCSV()">⬇ ייצוא CSV</button>
+    <button class="btn btn-sm" onclick="changePassword()">🔑 שנה סיסמה</button>
+  </div>
+
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-bg hidden" id="editModal">
+  <div class="modal">
+    <h3>✏ עריכת הוצאה</h3>
+    <div class="fg">
+      <div class="f"><label>סוג הוצאה</label>
+        <select id="eCat">
+          <option value="super">🛒 מזון</option>
+          <option value="alco">🍺 אלכוהול</option>
+          <option value="port">⚓ מיסי נמל / עגינה</option>
+          <option value="fuel">⛽ דלק</option>
+          <option value="marina">🔌 מים / חשמל</option>
+          <option value="trans">🚐 הסעות</option>
+          <option value="other">📌 אחר</option>
+        </select>
+      </div>
+      <div class="f"><label>סכום (€)</label><input type="number" id="eAmount" min="0" step="0.01" inputmode="decimal"></div>
+      <div class="f"><label>תאריך</label><input type="date" id="eDate"></div>
+      <div class="f"><label>מיקום / נמל</label><input type="text" id="eLocation"></div>
+      <div class="f full"><label>הערות</label><input type="text" id="eNotes"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-sm" onclick="closeModal()">ביטול</button>
+      <button class="btn btn-sm" style="border-color:var(--brass);color:var(--brass-light)" onclick="saveEdit()">✓ שמור</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ══ CATEGORIES ══
+const CAT = {
+  super: {label:'מזון',             emoji:'🛒', color:'#1d9e75', bg:'rgba(29,158,117,0.18)'},
+  alco:  {label:'אלכוהול',          emoji:'🍺', color:'#ba7517', bg:'rgba(186,117,23,0.18)'},
+  port:  {label:'מיסי נמל / עגינה', emoji:'⚓', color:'#378add', bg:'rgba(55,138,221,0.18)'},
+  fuel:  {label:'דלק',              emoji:'⛽', color:'#e24b4a', bg:'rgba(226,75,74,0.18)'},
+  marina:{label:'מים / חשמל',       emoji:'🔌', color:'#7f77dd', bg:'rgba(127,119,221,0.18)'},
+  trans: {label:'הסעות',            emoji:'🚐', color:'#d4537e', bg:'rgba(212,83,126,0.18)'},
+  other: {label:'אחר',              emoji:'📌', color:'#888780', bg:'rgba(136,135,128,0.18)'}
+};
+
+// ══ STATE ══
+let entries       = [];
+let sailors       = [];
+let paymentRounds = [{id:1, label:'גבייה ראשונה', amount:350}];
+let filter        = 'all';
+let editId        = null;
+let sailorsVisible = false;
+let donut, bar;
+let configSaveTimer = null;
+let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxCKECoNcRtC9fbPlS7IET8EXn5M86a3cF8tdNTyysnMiGpqHrnlpdGCXRdLuC1pJsIKQ/exec';
+
+// ══ SETUP URL ══
+function confirmScriptUrl() {
+  const val = document.getElementById('scriptUrlInput').value.trim();
+  if (!val) { alert('נא להזין URL'); return; }
+  SCRIPT_URL = val;
+  localStorage.setItem('shipwallet_script_url', SCRIPT_URL);
+  document.getElementById('setupBanner').style.display = 'none';
+  loadAll();
+}
+
+function onScriptUrlChange() {
+  const val = document.getElementById('scriptUrlInput').value.trim();
+  if (val.length > 20 && val.includes('script.google.com') && val.includes('exec')) {
+    SCRIPT_URL = val;
+    localStorage.setItem('shipwallet_script_url', SCRIPT_URL);
+    document.getElementById('setupBanner').style.display = 'none';
+    loadAll();
+  }
+}
+
+function initSetupBanner() {
+  document.getElementById('setupBanner').style.display = 'none';
+}
+
+// ══ API ══
+async function api(params) {
+  if (!SCRIPT_URL) { setSyncStatus('err','לא מוגדר Script URL'); return null; }
+  setSyncStatus('spin','מתחבר...');
+  try {
+    // GET for reads, POST for writes
+    let resp;
+    if (params.action === 'getAll') {
+      resp = await fetch(SCRIPT_URL + '?action=getAll', {redirect:'follow'});
+    } else {
+      resp = await fetch(SCRIPT_URL, {
+        method:'POST', redirect:'follow',
+        headers:{'Content-Type':'text/plain'},
+        body: JSON.stringify(params)
+      });
+    }
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    setSyncStatus('ok', 'מסונכרן · ' + timeNow());
+    return data;
+  } catch(e) {
+    setSyncStatus('err', 'שגיאת תקשורת: ' + e.message);
+    return null;
+  }
+}
+
+// ══ LOAD ALL ══
+async function loadAll() {
+  const data = await api({action:'getAll'});
+  if (!data) return;
+  entries       = (data.entries || []).reverse(); // newest first
+  sailors       = data.sailors       || [];
+  paymentRounds = data.paymentRounds || [{id:1,label:'גבייה ראשונה',amount:350}];
+  if (!sailors.length) initDefaultSailors();
+  if (data.voyageName) document.getElementById('cfgName').value = data.voyageName;
+  renderPaymentRounds();
+  refresh();
+}
+
+// ══ ADD ENTRY ══
+async function addEntry() {
+  const amt = parseFloat(document.getElementById('fAmount').value);
+  if (!amt || amt <= 0) { showToast('נא להזין סכום תקין'); return; }
+  const entry = {
+    action:   'addEntry',
+    cat:      document.getElementById('fCat').value,
+    amount:   amt,
+    date:     document.getElementById('fDate').value,
+    location: document.getElementById('fLocation').value.trim() || '—',
+    notes:    document.getElementById('fNotes').value.trim()
+  };
+  setAddBtn(false);
+  const res = await api(entry);
+  setAddBtn(true);
+  if (!res) return;
+  // add locally with returned id
+  entries.unshift({...entry, id: res.id, action: undefined});
+  document.getElementById('fAmount').value   = '';
+  document.getElementById('fNotes').value    = '';
+  document.getElementById('fLocation').value = '';
+  showToast('✓ הוצאה נרשמה');
+  refresh();
+}
+
+// ══ DELETE ENTRY ══
+async function deleteEntry(id) {
+  if (!confirm('למחוק הוצאה זו?')) return;
+  entries = entries.filter(e => e.id !== id); // optimistic
+  refresh();
+  await api({action:'delEntry', id});
+  showToast('הוצאה נמחקה');
+}
+
+// ══ EDIT ENTRY ══
+function openEdit(id) {
+  const e = entries.find(x => x.id == id); if (!e) return;
+  editId = id;
+  document.getElementById('eCat').value      = e.cat;
+  document.getElementById('eAmount').value   = e.amount;
+  document.getElementById('eDate').value     = e.date;
+  document.getElementById('eLocation').value = e.location === '—' ? '' : e.location;
+  document.getElementById('eNotes').value    = e.notes || '';
+  document.getElementById('editModal').classList.remove('hidden');
+}
+function closeModal() { document.getElementById('editModal').classList.add('hidden'); editId=null; }
+
+async function saveEdit() {
+  const amt = parseFloat(document.getElementById('eAmount').value);
+  if (!amt || amt <= 0) { showToast('נא להזין סכום תקין'); return; }
+  const updated = {
+    action:   'editEntry',
+    id:       editId,
+    cat:      document.getElementById('eCat').value,
+    amount:   amt,
+    date:     document.getElementById('eDate').value,
+    location: document.getElementById('eLocation').value.trim() || '—',
+    notes:    document.getElementById('eNotes').value.trim()
+  };
+  const idx = entries.findIndex(e => e.id == editId);
+  if (idx !== -1) entries[idx] = {...entries[idx], ...updated}; // optimistic
+  closeModal(); refresh();
+  await api(updated);
+  showToast('✓ הוצאה עודכנה');
+}
+
+document.getElementById('editModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+
+// ══ CONFIG SAVE (debounced) ══
+function scheduleConfigSave() {
+  clearTimeout(configSaveTimer);
+  configSaveTimer = setTimeout(pushConfig, 1200);
+}
+
+async function pushConfig() {
+  await api({
+    action:        'saveConfig',
+    voyageName:    document.getElementById('cfgName').value,
+    sailors,
+    paymentRounds
+  });
+}
+
+// ══ PAYMENT ROUNDS ══
+function renderPaymentRounds() {
+  const el = document.getElementById('paymentRounds');
+  el.innerHTML = paymentRounds.map((r,i) => `
+    <div style="display:grid;grid-template-columns:1fr 130px auto;gap:10px;align-items:end;margin-bottom:10px">
+      <div class="f"><label>שם סבב גבייה ${i+1}</label>
+        <input type="text" value="${r.label||''}" placeholder="גבייה ראשונה"
+          oninput="paymentRounds[${i}].label=this.value;scheduleConfigSave();refresh()">
+      </div>
+      <div class="f"><label>סכום לאדם (€)</label>
+        <input type="number" value="${r.amount||0}" min="0" step="1" inputmode="decimal"
+          oninput="paymentRounds[${i}].amount=+this.value||0;scheduleConfigSave();refresh()">
+      </div>
+      <div style="padding-bottom:2px">
+        ${paymentRounds.length>1
+          ? `<button class="btn-del-row" onclick="removePaymentRound(${i})">×</button>`
+          : '<span style="width:28px;display:inline-block"></span>'}
+      </div>
+    </div>`).join('');
+}
+
+function addPaymentRound() {
+  paymentRounds.push({id:Date.now(), label:`גבייה ${paymentRounds.length+1}`, amount:0});
+  sailors.forEach(s=>{ if(Array.isArray(s.paid)) s.paid.push(false); });
+  renderPaymentRounds(); refresh(); scheduleConfigSave();
+}
+function removePaymentRound(i) {
+  if(paymentRounds.length<=1){showToast('חייב להישאר לפחות סבב גבייה אחד');return;}
+  paymentRounds.splice(i,1);
+  sailors.forEach(s=>{ if(Array.isArray(s.paid)) s.paid.splice(i,1); });
+  renderPaymentRounds(); refresh(); scheduleConfigSave();
+}
+
+// ══ SAILORS ══
+function initDefaultSailors() {
+  sailors = Array.from({length:10},(_,i)=>({id:Date.now()+i,name:'',paid:paymentRounds.map(()=>true)}));
+}
+function toggleSailors() {
+  sailorsVisible=!sailorsVisible;
+  document.getElementById('sailorsPanel').style.display=sailorsVisible?'block':'none';
+  document.getElementById('sailorsToggleBtn').textContent=sailorsVisible?'▲ הסתר':'▼ הצג';
+}
+function renderSailors() {
+  const list=document.getElementById('sailorsList');
+  list.innerHTML=sailors.map((s,i)=>{
+    const checks=paymentRounds.map((r,ri)=>`
+      <label class="sailor-paid">
+        <input type="checkbox" ${(s.paid&&s.paid[ri])?'checked':''}
+          onchange="sailors[${i}].paid[${ri}]=this.checked;refresh();scheduleConfigSave()">
+        ${r.label} \u200E€${r.amount}
+      </label>`).join('');
+    return `<div class="sailor-row">
+      <input class="sailor-name" type="text" value="${s.name||''}" placeholder="שם מפליג ${i+1}"
+        oninput="sailors[${i}].name=this.value;scheduleConfigSave()">
+      ${checks}
+      <button class="btn-del-row" onclick="removeSailor(${i})">×</button>
+    </div>`;
+  }).join('');
+  updateSailorsSummary();
+}
+function updateSailorsSummary() {
+  const parts=paymentRounds.map((r,ri)=>{
+    const pc=sailors.filter(s=>s.paid&&s.paid[ri]).length;
+    return `${r.label}: ${pc}/${sailors.length} שילמו (${eurStr((pc*r.amount).toLocaleString())})`;
+  });
+  const tot=paymentRounds.reduce((s,r,ri)=>s+sailors.filter(x=>x.paid&&x.paid[ri]).length*r.amount,0);
+  document.getElementById('sailorsSummary').textContent=parts.join('\n')+(parts.length>1?`\nסה"כ: ${eurStr(tot.toLocaleString())}`:'');
+}
+function addSailor(){sailors.push({id:Date.now(),name:'',paid:paymentRounds.map(()=>true)});renderSailors();refresh();scheduleConfigSave();}
+function removeSailor(i){if(sailors.length<=1){showToast('חייב להישאר לפחות מפליג אחד');return;}sailors.splice(i,1);renderSailors();refresh();scheduleConfigSave();}
+
+// ══ FILTER ══
+function setFilter(el,f){filter=f;document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderLedger();}
+
+// ══ REFRESH ══
+function refresh() {
+  const total=paymentRounds.reduce((s,r,ri)=>s+sailors.filter(x=>x.paid&&x.paid[ri]).length*r.amount,0);
+  const spent=entries.reduce((s,e)=>s+parseFloat(e.amount||0),0);
+  const remain=total-spent;
+  const pct=total>0?Math.max(0,Math.round((remain/total)*100)):0;
+  const color=pct<25?'#d44':pct<50?'#c8a84b':'#2a9';
+  const roundsSummary=paymentRounds.map(r=>`\u200E€${r.amount}`).join('+');
+
+  document.getElementById('statTotal').textContent=eur(total.toLocaleString());
+  document.getElementById('statSub').textContent=`${sailors.length} מפליגים · ${roundsSummary} לאדם`;
+  document.getElementById('statSpent').textContent=eur(spent.toFixed(2));
+  document.getElementById('statCount').textContent=`${entries.length} קבלות`;
+  const remEl=document.getElementById('statRemain');
+  remEl.textContent=eur(remain.toFixed(2));remEl.style.color=color;
+  document.getElementById('pct').textContent=pct+'%';
+  const fill=document.getElementById('pbarFill');fill.style.width=pct+'%';fill.style.background=color;
+
+  updateDonut(pct,100-pct,color);updateBar();renderLedger();renderSailors();
+}
+
+// ══ DONUT ══
+function updateDonut(rem,sp,color){
+  const bg='rgba(255,255,255,0.07)';
+  if(donut){donut.data.datasets[0].data=[rem,sp];donut.data.datasets[0].backgroundColor=[color,bg];donut.update();return;}
+  donut=new Chart(document.getElementById('donutChart'),{type:'doughnut',
+    data:{datasets:[{data:[rem,sp],backgroundColor:[color,bg],borderWidth:0}]},
+    options:{cutout:'74%',responsive:false,animation:{duration:700},plugins:{legend:{display:false},tooltip:{enabled:false}}}});
+}
+
+// ══ BAR ══
+function updateBar(){
+  const totals={};Object.keys(CAT).forEach(k=>totals[k]=0);
+  entries.forEach(e=>totals[e.cat]=(totals[e.cat]||0)+parseFloat(e.amount||0));
+  const keys=Object.keys(CAT).filter(k=>totals[k]>0);
+  if(!keys.length){if(bar){bar.data.labels=[];bar.data.datasets[0].data=[];bar.update();}
+    document.getElementById('legend').innerHTML='<span style="color:#8b7355;font-style:italic;font-size:13px">אין הוצאות עדיין</span>';return;}
+  const labels=keys.map(k=>CAT[k].emoji+' '+CAT[k].label);
+  const data=keys.map(k=>parseFloat(totals[k].toFixed(2)));
+  const colors=keys.map(k=>CAT[k].color);
+  const totalSp=data.reduce((a,b)=>a+b,0);
+  if(bar){bar.data.labels=labels;bar.data.datasets[0].data=data;bar.data.datasets[0].backgroundColor=colors;bar.update();}
+  else{bar=new Chart(document.getElementById('barChart'),{type:'bar',
+    data:{labels,datasets:[{data,backgroundColor:colors,borderRadius:5,borderSkipped:false}]},
+    options:{responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` \u200E€${ctx.raw.toFixed(2)}`}}},
+      scales:{x:{ticks:{color:'#8b7355',font:{size:10},maxRotation:30},grid:{color:'rgba(200,168,75,0.08)'}},
+              y:{ticks:{color:'#8b7355',callback:v=>`\u200E€${v}`,font:{size:11}},grid:{color:'rgba(200,168,75,0.08)'},border:{color:'transparent'}}}}});}
+  document.getElementById('legend').innerHTML=keys.map((k,i)=>
+    `<span class="legend-item"><span class="legend-dot" style="background:${colors[i]}"></span>${labels[i]} — <span dir="ltr">€${data[i].toFixed(0)}</span> (${Math.round(data[i]/totalSp*100)}%)</span>`).join('');
+}
+
+// ══ LEDGER ══
+function renderLedger(){
+  const body=document.getElementById('ledgerBody');
+  const filtered=filter==='all'?entries:entries.filter(e=>e.cat===filter);
+  if(!filtered.length){body.innerHTML='<div class="empty">אין הוצאות ביומן</div>';return;}
+  body.innerHTML=filtered.map(e=>{
+    const c=CAT[e.cat]||CAT.other;
+    const d = formatDateDisplay(e.date);
+    const note=e.notes?`<br><span style="font-size:11px;color:#8b7355;font-style:italic">${e.notes}</span>`:'';
+    return `<div class="ledger-row">
+      <span style="color:var(--rope);font-size:12px">${d}</span>
+      <span style="color:var(--sail)">${e.location||'—'}${note}</span>
+      <span><span class="badge" style="background:${c.bg};color:${c.color}">${c.label}</span></span>
+      <span class="amt">${eur(e.amount)}</span>
+      <span class="row-actions">
+        <button class="btn-icon" onclick="openEdit('${e.id}')" title="עריכה">✏</button>
+        <button class="btn-icon del" onclick="deleteEntry('${e.id}')" title="מחק">×</button>
+      </span>
+    </div>`;
+  }).join('');
+  updateLockUI();
+}
+
+// ══ EXPORT CSV ══
+function exportCSV(){
+  if(!entries.length){showToast('אין נתונים לייצוא');return;}
+  const rows=[['תאריך','מיקום','קטגוריה','סכום','הערות']];
+  entries.forEach(e=>{const c=CAT[e.cat]||CAT.other;rows.push([e.date,e.location,c.label,parseFloat(e.amount||0).toFixed(2),e.notes||'']);});
+  const bom='\uFEFF';
+  const csv=bom+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
+  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download='ship_wallet_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+  showToast('✓ CSV הורד');
+}
+
+// ══ PASSWORD / LOCK ══
+const DEFAULT_PASSWORD = '5';
+const PASS_KEY = 'shipwallet_pass';
+const UNLOCK_KEY = 'shipwallet_unlocked';
+
+function getPassword() {
+  return localStorage.getItem(PASS_KEY) || DEFAULT_PASSWORD;
+}
+function isUnlocked() {
+  return sessionStorage.getItem(UNLOCK_KEY) === 'yes';
+}
+function initLock() {
+  updateLockUI();
+}
+function updateLockUI() {
+  const unlocked = isUnlocked();
+  const addBtn   = document.getElementById('addBtn');
+  const notice   = document.getElementById('lockNotice');
+  addBtn.style.display  = unlocked ? 'flex'  : 'none';
+  notice.style.display  = unlocked ? 'none'  : 'block';
+  // הסתר/הצג כפתורי עריכה ומחיקה ביומן
+  document.querySelectorAll('.btn-icon').forEach(b => b.style.display = unlocked ? '' : 'none');
+}
+function promptUnlock() {
+  const pass = prompt('הזן סיסמה להזנת נתונים:');
+  if (pass === null) return; // ביטול
+  if (pass === getPassword()) {
+    sessionStorage.setItem(UNLOCK_KEY, 'yes');
+    showToast('🔓 מנעול נפתח');
+    updateLockUI();
+  } else {
+    alert('סיסמה שגויה');
+  }
+}
+function changePassword() {
+  if (!isUnlocked()) {
+    const pass = prompt('הזן סיסמה נוכחית:');
+    if (pass !== getPassword()) { alert('סיסמה שגויה'); return; }
+  }
+  const newPass = prompt('הזן סיסמה חדשה:');
+  if (!newPass) return;
+  localStorage.setItem(PASS_KEY, newPass);
+  showToast('✓ סיסמה עודכנה');
+}
+
+
+// עוטף סכום ב-LTR כדי ש-€ יופיע תמיד משמאל למספר
+function eur(n){ const s=typeof n==='string'?n:parseFloat(n||0).toFixed(2); return s+' €'; }
+function eurStr(n){return `\u200E€${typeof n==='string'?n:parseFloat(n||0).toFixed(2)}`;} // לטקסט רגיל
+
+function formatDateDisplay(val) {
+  if (!val) return '—';
+  const s = String(val);
+  // ISO format: 2026-06-08T21:00:00.000Z or 2026-06-08
+  const match = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) return `${match[3]}/${match[2]}/${match[1]}`;
+  return s;
+}
+function setSyncStatus(state,msg){
+  const dot=document.getElementById('syncDot');const txt=document.getElementById('syncMsg');
+  dot.className='sync-dot '+state;txt.textContent=msg;
+}
+function timeNow(){const n=new Date();return n.getHours()+':'+String(n.getMinutes()).padStart(2,'0');}
+function setAddBtn(enabled){const b=document.getElementById('addBtn');b.disabled=!enabled;b.textContent=enabled?'+ רשום הוצאה':'... שומר';}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
+
+// ══ INIT ══
+document.getElementById('fDate').valueAsDate=new Date();
+initSetupBanner();
+initLock();
+if(SCRIPT_URL) loadAll(); else refresh();
+setInterval(()=>{ if(SCRIPT_URL) loadAll(); }, 60000);
+</script>
+
+<script>
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', function() {
+    navigator.serviceWorker.register('./service-worker.js');
+  });
+}
+</script>
+</body>
+
+</html>

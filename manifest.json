@@ -1,0 +1,15 @@
+{
+  "name": "Ship Wallet",
+  "short_name": "Ship Wallet",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#0a1628",
+  "theme_color": "#0a1628",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
