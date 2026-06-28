@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>תדריך הפלגה — יולי 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    /* brand palette */
+    --navy:#062439;
+    --ocean:#0077B6;
+    --turquoise:#00B4D8;
+    --seafoam:#90E0EF;
+    --bg:#F5F8FA;
+
+    /* surfaces */
+    --card: rgba(255,255,255,0.75);
+    --card-solid:#ffffff;
+    --line: rgba(7,40,63,0.08);
+
+    /* text */
+    --ink:#0B2536;
+    --ink-soft:#4F6B7D;
+    --ink-faint:#506B7C;
+    --on-dark:#ffffff;
+
+    /* status colors */
+    --danger:#D64545;
+    --good:#1E9E6B;
+
+    /* per-weekday route colors (page 1 day chips) */
+    --day-sun:#E17514;
+    --day-mon:#169864;
+    --day-tue:#9F800F;
+    --day-wed:#CD2868;
+    --day-thu:#8B5FBF;
+    --day-fri:#0077B6;
+
+    /* shape & elevation */
+    --radius:28px;
+    --radius-sm:18px;
+    --shadow: 0 20px 60px rgba(0,0,0,0.12);
+    --shadow-sm: 0 8px 24px rgba(0,0,0,0.08);
+
+    /* device safe areas */
+    --safe-top: env(safe-area-inset-top, 0px);
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
+  *{box-sizing:border-box; -webkit-tap-highlight-color: transparent;}
+  html,body{margin:0; padding:0; height:100%; overscroll-behavior-y: none;}
+  body{
+    font-family:'Heebo', sans-serif;
+    font-weight:400;
+    background: var(--bg);
+    color: var(--ink);
+    min-height:100vh;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+  }
+
+  .app{
+    position:relative;
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    max-width:560px;
+    margin:0 auto;
+    width:100%;
+    background: var(--bg);
+    overflow:hidden;
+  }
+  @media (min-width: 561px){
+    body{ align-items:center; justify-content:center; padding:24px 0; }
+    .app{
+      max-height:880px;
+      border-radius:34px;
+      box-shadow: 0 30px 90px rgba(0,0,0,0.35);
+      transform: translateZ(0);
+    }
+  }
+
+  /* ambient highlight accents over the gradient */
+  .app::before{
+    content:'';
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    z-index:0;
+    background:
+      radial-gradient(ellipse 70% 35% at 15% 0%, rgba(0,180,216,0.18), transparent),
+      radial-gradient(ellipse 60% 30% at 100% 10%, rgba(144,224,239,0.12), transparent);
+  }
+
+  img{ -webkit-user-drag:none; user-select:none; }
+
+  /* ---------- TOP BAR ---------- */
+  .topbar{
+    position:relative;
+    z-index:5;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding: calc(14px + var(--safe-top)) 18px 10px;
+    flex-shrink:0;
+  }
+  .back-link{
+    width:38px;
+    height:38px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background: var(--card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border:1px solid var(--line);
+    box-shadow: var(--shadow-sm);
+    color: var(--navy);
+    text-decoration:none;
+    transition: transform 220ms ease;
+  }
+  .back-link:active{ transform: translateY(2px); }
+  .back-link svg{ width:19px; height:19px; }
+
+  .page-indicator{
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    font-weight:500;
+    color: var(--ink-soft);
+    letter-spacing:0.02em;
+  }
+
+  .brand-mark{
+    font-size:13px;
+    font-weight:500;
+    color: rgba(255,255,255,0.7);
+    letter-spacing:0.01em;
+  }
+
+  /* ---------- STAGE / PAGES ---------- */
+  .stage{
+    flex:1;
+    position:relative;
+    overflow:hidden;
+    z-index:1;
+    touch-action: pan-y;
+  }
+  .page{
+    position:absolute;
+    inset:0;
+    display:flex;
+    flex-direction:column;
+    opacity:0;
+    transform: translateX(-28px);
+    transition: opacity 220ms ease, transform 320ms cubic-bezier(.22,.61,.36,1);
+    pointer-events:none;
+    overflow-y:auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  .page.active{
+    opacity:1;
+    transform: translateX(0);
+    pointer-events:auto;
+  }
+  .page.exit-left{ transform: translateX(28px); }
+  .page.exit-right{ transform: translateX(-28px); opacity:0; }
+
+  .page-inner{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    padding: 0 20px calc(80px + env(safe-area-inset-bottom, 0px));
+  }
+
+  /* Hero photo */
+  .page-hero{
+    position:relative;
+    width:100%;
+    height:340px;
+    border-radius:24px;
+    overflow:hidden;
+    flex-shrink:0;
+    box-shadow: var(--shadow);
+    cursor: zoom-in;
+    transition: transform 220ms ease, box-shadow 220ms ease;
+  }
+  .page-hero:hover{
+    transform: translateY(-4px);
+    box-shadow: 0 28px 70px rgba(0,0,0,0.14);
+  }
+  .page-hero img{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    object-position:center;
+    display:block;
+  }
+  .page-hero .hero-overlay{
+    position:absolute;
+    inset:0;
+    background: linear-gradient(180deg, rgba(7,40,63,0.15) 0%, rgba(7,40,63,0.35) 60%, rgba(7,40,63,0.6) 100%);
+  }
+  .page-hero .hero-zoom{
+    position:absolute;
+    bottom:12px;
+    inset-inline-end:12px;
+    width:32px;
+    height:32px;
+    border-radius:50%;
+    background: rgba(7,40,63,0.45);
+    backdrop-filter: blur(6px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color: var(--on-dark);
+  }
+  .page-hero .hero-zoom svg{ width:15px; height:15px; }
+  .page-hero .hero-eyebrow{
+    position:absolute;
+    top:14px;
+    inset-inline-start:16px;
+    font-size:12px;
+    font-weight:500;
+    letter-spacing:0.04em;
+    color: rgba(255,255,255,0.85);
+  }
+
+  /* Title */
+  .page-title{
+    font-size:36px;
+    font-weight:700;
+    line-height:1.18;
+    color: var(--navy);
+    margin: 24px 0 6px;
+    letter-spacing:-0.01em;
+  }
+  .page-subtitle{
+    font-size:15px;
+    font-weight:400;
+    color: var(--ink-soft);
+    line-height:1.5;
+    margin: 0 0 16px;
+  }
+
+  /* Card */
+  .section-label{
+    font-size:13px;
+    font-weight:600;
+    color: var(--ocean);
+    margin:0 0 10px;
+    display:flex;
+    align-items:center;
+    gap:7px;
+    letter-spacing:0.02em;
+  }
+  .section-label svg{ width:16px; height:16px; flex-shrink:0; }
+  .section-block{ display:flex; flex-direction:column; }
+  .section-divider-full{
+    height:1px;
+    background: var(--line);
+    margin:12px 0;
+  }
+
+  /* ---------- BOTTOM NAV ---------- */
+  .bottomnav{
+    position:fixed;
+    left:50%;
+    transform: translateX(-50%);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
+    z-index:1000;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding: 10px 16px;
+    background: var(--card);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border:1px solid rgba(255,255,255,0.5);
+    border-radius:999px;
+    box-shadow: var(--shadow);
+  }
+  .nav-dots{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .nav-dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background: rgba(7,40,63,0.18);
+    cursor:pointer;
+    transition: all 220ms ease;
+  }
+  .nav-dot.active{
+    width:22px;
+    border-radius:5px;
+    background: var(--turquoise);
+  }
+  /* ---------- LIGHTBOX ---------- */
+  .lightbox{
+    position:fixed;
+    inset:0;
+    background: rgba(7,20,32,0.92);
+    z-index:50;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding: calc(20px + var(--safe-top)) 16px calc(20px + var(--safe-bottom));
+  }
+  .lightbox.open{ display:flex; }
+  .lightbox img{
+    max-width:100%;
+    max-height:100%;
+    object-fit:contain;
+    border-radius:16px;
+    touch-action: pinch-zoom;
+  }
+  .lightbox-close{
+    position:absolute;
+    top: calc(16px + var(--safe-top));
+    inset-inline-end:16px;
+    width:40px;
+    height:40px;
+    border-radius:50%;
+    border:1px solid rgba(255,255,255,0.2);
+    background: rgba(255,255,255,0.1);
+    color: var(--on-dark);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    z-index:51;
+  }
+  .lightbox-close svg{ width:18px; height:18px; }
+  .lb-dots{
+    position:absolute;
+    bottom: calc(24px + var(--safe-bottom));
+    inset-inline-start:50%;
+    transform: translateX(-50%);
+    display:flex;
+    gap:6px;
+  }
+  .lb-dot{
+    width:7px; height:7px;
+    border-radius:50%;
+    background: rgba(255,255,255,0.3);
+  }
+  .lb-dot.active{ background: var(--turquoise); }
+
+  /* ---------- PAGE 1: ROUTE — day chips & legs ---------- */
+  .day-selector{
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+    padding: 0 0 8px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width:none;
+    flex-shrink:0;
+  }
+  .day-selector::-webkit-scrollbar{display:none;}
+  .day-chip{
+    flex-shrink:0;
+    width:56px;
+    height:56px;
+    border-radius:18px;
+    border:1.5px solid var(--line);
+    background: var(--card-solid);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:2px;
+    cursor:pointer;
+    transition: transform 220ms ease, background 220ms ease, border-color 220ms ease;
+    font-family:'Heebo', sans-serif;
+  }
+  .day-chip .n{ font-size:10px; color: var(--ink-soft); font-weight:500;}
+  .day-chip .d{ font-size:14px; font-weight:700; color: var(--navy); font-family:'JetBrains Mono', monospace;}
+  .day-chip.chip-sun{ border-color: var(--day-sun); }
+  .day-chip.chip-mon{ border-color: var(--day-mon); }
+  .day-chip.chip-tue{ border-color: var(--day-tue); }
+  .day-chip.chip-wed{ border-color: var(--day-wed); }
+  .day-chip.chip-thu{ border-color: var(--day-thu); }
+  .day-chip.chip-fri{ border-color: var(--day-fri); }
+  .day-chip.active{ transform: translateY(-4px); box-shadow: var(--shadow-sm); }
+  .day-chip.active .n{ color: rgba(255,255,255,0.85); }
+  .day-chip.active .d{ color: var(--on-dark); }
+  .day-chip.chip-sun.active{ background: var(--day-sun); }
+  .day-chip.chip-mon.active{ background: var(--day-mon); }
+  .day-chip.chip-tue.active{ background: var(--day-tue); }
+  .day-chip.chip-wed.active{ background: var(--day-wed); }
+  .day-chip.chip-thu.active{ background: var(--day-thu); }
+  .day-chip.chip-fri.active{ background: var(--day-fri); }
+
+  .route-open{ margin-top:2px; }
+  .leg-block{ padding:14px 0; }
+  .leg-block:not(:last-child){
+    border-bottom:1px solid var(--line);
+  }
+  .leg-num{
+    display:inline-block;
+    font-size:11px;
+    font-weight:500;
+    color: var(--ocean);
+    background: rgba(0,119,182,0.1);
+    border-radius:8px;
+    padding:2px 9px;
+    margin-bottom:7px;
+  }
+  .route-line{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:19px;
+    font-weight:700;
+    color: var(--navy);
+  }
+  .route-line .arrow{ color: var(--turquoise); font-size:17px; }
+
+  /* ---------- PAGE 2: COSTS ---------- */
+  .cost-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:16px 0;
+    border-bottom:1px solid var(--line);
+    gap:10px;
+  }
+  .cost-row:last-child{ border-bottom:none; }
+  .cost-row .item{
+    font-size:14.5px;
+    font-weight:500;
+    color: var(--ink);
+  }
+  .cost-row .note{
+    display:block;
+    font-size:11.5px;
+    color: var(--ink-faint);
+    margin-top:2px;
+    font-weight:400;
+    line-height:1.4;
+  }
+  .cost-row .amount{
+    font-family:'JetBrains Mono', monospace;
+    font-size:15px;
+    font-weight:500;
+    color: var(--ink);
+    white-space:nowrap;
+  }
+  .paid-amount{ color: var(--good) !important; font-weight:700 !important; }
+  .due-amount{ color: var(--danger) !important; }
+  .paid-tag{
+    display:inline-block;
+    font-size:11px;
+    font-weight:500;
+    color: var(--good);
+    background: rgba(30,158,107,0.1);
+    border-radius:7px;
+    padding:1px 8px;
+    margin-top:4px;
+  }
+  .local-tag{
+    display:inline-block;
+    font-size:11px;
+    font-weight:500;
+    color: var(--ocean);
+    background: rgba(0,119,182,0.1);
+    border-radius:7px;
+    padding:1px 8px;
+    margin-top:4px;
+  }
+  .cost-row.cash-row{ background: rgba(0,180,216,0.06); border-radius:14px; padding:13px 10px; }
+  .cost-row.cash-row .item{ font-weight:700; color: var(--navy); }
+  .cost-row.total{ padding-top:16px; }
+  .cost-row.total .item{ font-size:17px; font-weight:700; color: var(--navy); }
+  .cost-row.total .amount{ font-size:19px; font-weight:700; color: var(--navy); }
+
+  .insurance-note{
+    margin-top:6px;
+    background: rgba(0,180,216,0.08);
+    border:1px solid rgba(0,180,216,0.2);
+    border-radius:var(--radius-sm);
+    padding:13px 15px;
+    display:flex;
+    gap:10px;
+  }
+  .insurance-note svg{ width:18px; height:18px; color: var(--ocean); flex-shrink:0; margin-top:1px; }
+  .insurance-note .it{ font-size:12.5px; color: var(--ink); line-height:1.5; }
+  .insurance-note .it b{ color: var(--navy); }
+
+  .wallet-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    padding:4px 2px;
+    color: var(--navy);
+    font-size:17px;
+    font-weight:600;
+  }
+  .wallet-row-label{ display:flex; align-items:center; gap:10px; }
+  .wallet-row-label svg{ width:20px; height:20px; color: var(--ocean); }
+  .wallet-row-chevron{ width:18px; height:18px; color: var(--ink-faint); }
+
+  /* ---------- PAGE 3: TIMELINE ---------- */
+  .timeline{
+    position:relative;
+    padding-inline-start:26px;
+  }
+  .timeline::before{
+    content:'';
+    position:absolute;
+    inset-inline-start:9px;
+    top:8px;
+    bottom:8px;
+    width:2px;
+    background: var(--line);
+  }
+  .tl-item{ position:relative; padding-bottom:18px; }
+  .tl-item:last-child{ padding-bottom:0; }
+  .tl-item::before{
+    content:'';
+    position:absolute;
+    inset-inline-start:-26px;
+    top:3px;
+    width:16px;
+    height:16px;
+    border-radius:50%;
+    background: var(--card-solid);
+    border:2.5px solid var(--ocean);
+  }
+  .tl-item.depart::before{ background: var(--turquoise); border-color: var(--turquoise); }
+  .tl-title{ font-size:15px; font-weight:700; color: var(--navy); line-height:1.35; }
+  .tl-desc{ font-size:12.5px; color: var(--ink-soft); margin-top:3px; line-height:1.45; }
+
+  .timeline-open{ margin-top:14px; padding-inline-start:30px; }
+  .timeline-open::before{ inset-inline-start:11px; }
+  .timeline-open .tl-item{ padding-bottom:30px; }
+  .timeline-open .tl-item::before{
+    inset-inline-start:-30px;
+    top:4px;
+    width:20px;
+    height:20px;
+    border-width:3px;
+  }
+  .timeline-open .tl-title{ font-size:18px; }
+  .timeline-open .tl-desc{ font-size:13.5px; margin-top:5px; }
+
+  /* ---------- PAGE 4: TOPIC LIST (Section-based, no cards) ---------- */
+  .topic-list{
+    display:flex;
+    flex-direction:column;
+  }
+  .topic-row{
+    display:flex;
+    align-items:center;
+    gap:16px;
+    padding:16px 2px;
+    border-bottom:1px solid var(--line);
+    transition: opacity 220ms ease;
+  }
+  .topic-row:last-child{ border-bottom:none; }
+  .topic-row svg{
+    width:24px; height:24px; color: var(--ocean); flex-shrink:0;
+  }
+  .topic-row .ti-label{ font-size:16px; font-weight:500; color: var(--navy); line-height:1.3; flex:1; }
+  .topic-row.has-image{ cursor:pointer; }
+  .topic-row.has-image:active{ opacity:0.6; }
+  .topic-row.has-image .zoom-badge{
+    color: var(--ink-faint);
+    flex-shrink:0;
+    display:flex;
+  }
+  .topic-row.has-image .zoom-badge svg{ width:18px; height:18px; }
+
+  @media (max-width: 360px){
+    .page-title{ font-size:30px; }
+    .page-hero{ height:270px; }
+    .topic-row .ti-label{ font-size:14.5px; }
+  }
+</style>
+</head>
+<body>
+<div class="app" id="app">
+
+  <div class="topbar">
+    <a href="index.html" class="back-link" title="חזרה לדאשבורד">
+      <i data-lucide="arrow-right"></i>
+    </a>
+    <span class="page-indicator" id="pageIndicator">1 / 4</span>
+  </div>
+
+  <div class="stage" id="stage">
+
+    <!-- PAGE 1 — ROUTE -->
+    <section class="page active" data-page="0">
+      <div class="page-inner">
+        <div class="page-hero" id="routeHero">
+          <img id="routeImage" src="" alt="מסלול היום">
+          <div class="hero-overlay"></div>
+          <span class="hero-eyebrow">SARONIC GULF · 2026</span>
+          <div class="hero-zoom">
+            <i data-lucide="zoom-in"></i>
+          </div>
+        </div>
+
+        <p class="page-subtitle" style="margin-top:12px; margin-bottom:10px;">לחצו על יום לתאריך הרלוונטי. לחצו על התמונה להגדלה.</p>
+
+        <div class="day-selector" id="daySelector"></div>
+
+        <div id="dayDetail" class="route-open"></div>
+      </div>
+    </section>
+
+    <!-- PAGE 2 — COSTS -->
+    <section class="page" data-page="1">
+      <div class="page-inner">
+        <h1 class="page-title">עלויות</h1>
+
+        <div class="section-label">
+          <i data-lucide="euro"></i>
+          פירוט
+        </div>
+
+        <div class="section-block">
+          <div class="cost-row paid">
+            <div>
+              <div class="item">Price</div>
+              <span class="paid-tag">Paid</span>
+            </div>
+            <div class="amount paid-amount">€8,640</div>
+          </div>
+          <div class="cost-row">
+            <div>
+              <div class="item">Final cleaning</div>
+              <span class="local-tag">Local payment</span>
+            </div>
+            <div class="amount due-amount">€260</div>
+          </div>
+          <div class="cost-row">
+            <div>
+              <div class="item">Damage waiver</div>
+              <span class="note">1000 EUR refundable in case of no damage</span>
+            </div>
+            <div class="amount due-amount">€1,500</div>
+          </div>
+          <div class="cost-row">
+            <div>
+              <div class="item">Generator/watermaker</div>
+              <span class="local-tag">Local payment</span>
+            </div>
+            <div class="amount due-amount">€300</div>
+          </div>
+          <div class="cost-row">
+            <div>
+              <div class="item">Outboard engine</div>
+              <span class="local-tag">Local payment</span>
+            </div>
+            <div class="amount due-amount">€80</div>
+          </div>
+          <div class="cost-row">
+            <div>
+              <div class="item">SUP</div>
+              <span class="local-tag">Local payment</span>
+            </div>
+            <div class="amount due-amount">€130</div>
+          </div>
+          <div class="cost-row cash-row">
+            <div class="item">127 יורו לאדם (מזומן)</div>
+            <div class="amount due-amount">€1,270</div>
+          </div>
+          <div class="cost-row total">
+            <div class="item">סה״כ</div>
+            <div class="amount">€10,910</div>
+          </div>
+        </div>
+
+        <div class="section-divider-full"></div>
+
+        <div class="insurance-note">
+          <i data-lucide="shield"></i>
+          <div class="it"><b>ביטוח:</b> כיסוי הנזקים (€1,500) מחליף את הפיקדון — אין תשלום ביטוח נוסף בנפרד.</div>
+        </div>
+
+        <div class="section-divider-full"></div>
+
+        <div class="wallet-row">
+          <span class="wallet-row-label"><i data-lucide="wallet"></i> ארנק משותף</span>
+          <i data-lucide="chevron-left" class="wallet-row-chevron"></i>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 3 — CHECK IN / CHECK OUT -->
+    <section class="page" data-page="2">
+      <div class="page-inner">
+        <h1 class="page-title">Check in & Check out</h1>
+
+        <div class="timeline timeline-open">
+          <div class="tl-item">
+            <div class="tl-title">הגעה למרינת אלימוס</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-title">המתנה לקבלת כלי השייט</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-title">Check-in</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-title">קניות</div>
+            <div class="tl-desc">רשימת מוצרים MUST</div>
+          </div>
+          <div class="tl-item depart">
+            <div class="tl-title">יציאה לים — יום ראשון בבוקר</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-title">חזרה מהים — יום שישי צהרים</div>
+          </div>
+          <div class="tl-item">
+            <div class="tl-title">Check-out מוקדם</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 4 — OPERATIONS & SAFETY -->
+    <section class="page" data-page="3">
+      <div class="page-inner">
+        <h1 class="page-title">תפעול ובטיחות</h1>
+
+        <div class="topic-list">
+          <div class="topic-row">
+            <i data-lucide="life-buoy"></i>
+            <span class="ti-label">חגורות וציוד הצלה</span>
+          </div>
+          <div class="topic-row">
+            <i data-lucide="link"></i>
+            <span class="ti-label">עבודת חבלים</span>
+          </div>
+          <div class="topic-row">
+            <i data-lucide="wind"></i>
+            <span class="ti-label">ריילינג</span>
+          </div>
+          <div class="topic-row">
+            <i data-lucide="waves"></i>
+            <span class="ti-label">ציוד וחבלים במים</span>
+          </div>
+          <div class="topic-row">
+            <i data-lucide="person-standing"></i>
+            <span class="ti-label">שחייה</span>
+          </div>
+          <div class="topic-row has-image" data-img="images/switch.jpg" data-label="לחצן הפעלת אסלה">
+            <i data-lucide="toilet"></i>
+            <span class="ti-label">אסלות</span>
+            <span class="zoom-badge"><i data-lucide="chevron-left"></i></span>
+          </div>
+          <div class="topic-row">
+            <i data-lucide="recycle"></i>
+            <span class="ti-label">מכלי ביוב</span>
+          </div>
+          <div class="topic-row has-image" data-img="images/plan.jpg,images/plan2.jpg" data-label="BALI 4.6">
+            <i data-lucide="ship"></i>
+            <span class="ti-label">BALI 4.6</span>
+            <span class="zoom-badge"><i data-lucide="chevron-left"></i></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <div class="bottomnav" id="bottomnav">
+    <div class="nav-dots" id="navDots"></div>
+  </div>
+
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightboxClose">
+      <i data-lucide="x"></i>
+    </button>
+    <img id="lightboxImg" src="" alt="">
+    <div class="lb-dots" id="lightboxDots"></div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/lucide@1.21.0/dist/umd/lucide.js"></script>
+<script>
+  lucide.createIcons();
+</script>
+<script>
+  // ---- מסלול הפלגה — מתוך גיליון "לתדרוך" ----
+  const days = [
+    {n:'ראשון', d:'05.07', color:'chip-sun', img:'images/day-sun.jpg', legs:[
+      {from:'Alimos Marina', to:'Poros'}
+    ]},
+    {n:'שני', d:'06.07', color:'chip-mon', img:'images/day-mon.jpg', legs:[
+      {from:'Poros', to:'Cape Skyli South'},
+      {from:'Cape Skyli South', to:'Ermioni'}
+    ]},
+    {n:'שלישי', d:'07.07', color:'chip-tue', img:'images/day-tue.jpg', legs:[
+      {from:'Ermioni', to:'Khersonisos Ermionis'},
+      {from:'Khersonisos Ermionis', to:'Spetses'}
+    ]},
+    {n:'רביעי', d:'08.07', color:'chip-wed', img:'images/day-wed.jpg', legs:[
+      {from:'Spetses', to:'Mandraki'}
+    ]},
+    {n:'חמישי', d:'09.07', color:'chip-thu', img:'images/day-thu.jpg', legs:[
+      {from:'Mandraki', to:'Moni'},
+      {from:'Moni', to:'Perdika'}
+    ]},
+    {n:'שישי', d:'10.07', color:'chip-fri', img:'images/day-fri.jpg', legs:[
+      {from:'Perdika', to:'Alimos Marina'}
+    ]},
+  ];
+
+  const daySelector = document.getElementById('daySelector');
+  const dayDetail = document.getElementById('dayDetail');
+  const routeImage = document.getElementById('routeImage');
+
+  function renderDays(activeIdx){
+    daySelector.innerHTML = '';
+    days.forEach((day, i)=>{
+      const chip = document.createElement('div');
+      chip.className = 'day-chip ' + day.color + (i===activeIdx ? ' active' : '');
+      chip.innerHTML = `<span class="n">${day.n}</span><span class="d">${day.d}</span>`;
+      chip.addEventListener('click', ()=> selectDay(i));
+      daySelector.appendChild(chip);
+    });
+
+    const day = days[activeIdx];
+    routeImage.src = day.img;
+    routeImage.alt = `מסלול יום ${day.n}`;
+
+    dayDetail.innerHTML = day.legs.map((leg, idx) => `
+      <div class="leg-block">
+        ${day.legs.length > 1 ? `<span class="leg-num">קטע ${idx+1}</span>` : ''}
+        <div class="route-line">${leg.from} <span class="arrow">←</span> ${leg.to}</div>
+      </div>
+    `).join('');
+  }
+  function selectDay(i){ renderDays(i); }
+  renderDays(0);
+
+  // ---- Lightbox ----
+  const lightbox = document.getElementById('lightbox');
+  const lightboxImg = document.getElementById('lightboxImg');
+  const lightboxClose = document.getElementById('lightboxClose');
+  let lightboxGallery = [];
+  let lightboxIndex = 0;
+
+  function showLightboxImage(){
+    lightboxImg.src = lightboxGallery[lightboxIndex];
+    let dots = document.getElementById('lightboxDots');
+    dots.innerHTML = lightboxGallery.length > 1
+      ? lightboxGallery.map((_,i)=>`<span class="lb-dot${i===lightboxIndex?' active':''}"></span>`).join('')
+      : '';
+  }
+  function openLightbox(srcOrList, alt){
+    lightboxGallery = Array.isArray(srcOrList) ? srcOrList : String(srcOrList).split(',');
+    lightboxIndex = 0;
+    lightboxImg.alt = alt || '';
+    showLightboxImage();
+    lightbox.classList.add('open');
+  }
+  function closeLightbox(){ lightbox.classList.remove('open'); }
+  lightboxClose.addEventListener('click', closeLightbox);
+  lightbox.addEventListener('click', (e)=>{
+    if(e.target === lightbox){ closeLightbox(); return; }
+    if(e.target === lightboxImg && lightboxGallery.length > 1){
+      lightboxIndex = (lightboxIndex + 1) % lightboxGallery.length;
+      showLightboxImage();
+    }
+  });
+  document.addEventListener('keydown', (e)=>{ if(e.key === 'Escape') closeLightbox(); });
+
+  document.getElementById('routeHero').addEventListener('click', ()=>{
+    openLightbox(routeImage.src, routeImage.alt);
+  });
+  document.querySelectorAll('.topic-row.has-image').forEach(card=>{
+    card.addEventListener('click', ()=>{
+      openLightbox(card.dataset.img, card.dataset.label || '');
+    });
+  });
+
+  // ---- Page navigation ----
+  const pages = Array.from(document.querySelectorAll('.page'));
+  const total = pages.length;
+  let current = 0;
+
+  const pageIndicator = document.getElementById('pageIndicator');
+  const navDots = document.getElementById('navDots');
+
+  for(let i=0;i<total;i++){
+    const dot = document.createElement('div');
+    dot.className = 'nav-dot' + (i===0 ? ' active' : '');
+    dot.addEventListener('click', ()=> goTo(i));
+    navDots.appendChild(dot);
+  }
+
+  function goTo(idx){
+    if(idx < 0 || idx >= total || idx === current) return;
+    const dir = idx > current ? 1 : -1;
+    pages[current].classList.remove('active');
+    pages[current].classList.add(dir>0 ? 'exit-left' : 'exit-right');
+    setTimeout(()=>{ pages[current].classList.remove('exit-left','exit-right'); }, 340);
+
+    current = idx;
+    pages[current].classList.remove('exit-left','exit-right');
+    pages[current].classList.add('active');
+    pages[current].scrollTop = 0;
+
+    pageIndicator.textContent = `${current+1} / ${total}`;
+    navDots.querySelectorAll('.nav-dot').forEach((d,i)=> d.classList.toggle('active', i===current));
+  }
+
+  // Swipe support
+  let touchStartX = null;
+  const stage = document.getElementById('stage');
+  stage.addEventListener('touchstart', e=>{ touchStartX = e.touches[0].clientX; }, {passive:true});
+  stage.addEventListener('touchend', e=>{
+    if(touchStartX===null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if(Math.abs(dx) > 50){ dx > 0 ? goTo(current+1) : goTo(current-1); }
+    touchStartX = null;
+  }, {passive:true});
+
+  // Keyboard support (desktop preview)
+  document.addEventListener('keydown', e=>{
+    if(e.key === 'ArrowLeft') goTo(current+1);
+    if(e.key === 'ArrowRight') goTo(current-1);
+  });
+</script>
+</body>
+</html>

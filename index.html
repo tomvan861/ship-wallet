@@ -2,755 +2,1003 @@
 <html lang="he" dir="rtl">
 <head>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#1c1c1e">
+  <meta name="theme-color" content="#062439">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Ship Wallet">
+  <meta name="apple-mobile-web-app-title" content="Saronic Islands">
   <link rel="apple-touch-icon" href="icon.png">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Yudale ⚓ ארנק ספינתי</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<title>ונונו תומר — הפלגת האיים הסרונים 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
-  --bg:#0f0f14;--surface:#1c1c24;--card:#ffffff;--card2:#f4f6f9;
-  --accent:#00d4aa;--accent2:#00b894;--text-dark:#111318;--text-mid:#6b7280;
-  --text-light:#ffffff;--danger:#ff4757;--success:#00d4aa;
-  --border:rgba(255,255,255,0.06);--shadow:0 4px 24px rgba(0,0,0,0.35);
-  --font-h:'SF Pro Display',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-  --font-b:'SF Pro Text',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
-  --r:20px;--r-sm:12px
+  /* brand palette (Luxury Sailing Companion) */
+  --navy:#062439;--ocean:#0077B6;--turquoise:#00B4D8;--seafoam:#90E0EF;
+  --bg:#0A4761;
+  /* surfaces */
+  --panel:rgba(255,255,255,0.75);--panel2:#ffffff;--panel3:#F5F8FA;
+  --border:rgba(255,255,255,0.18);--border2:rgba(7,40,63,0.12);--border3:rgba(7,40,63,0.18);
+  /* text */
+  --text:#07283F;--text2:#4F6B7D;--text3:#506B7C;
+  --on-dark:#ffffff;
+  /* accents (mapped from former accent/accent2/green/amber) */
+  --accent:#00B4D8;--accent2:#0077B6;--green:#1E9E6B;--amber:#E08A3C;
+  --grad1:linear-gradient(135deg,#00B4D8,#0077B6);
+  --grad2:linear-gradient(135deg,#90E0EF,#00B4D8);
+  --shadow:0 20px 60px rgba(0,0,0,0.12);
+  --radius:28px;--radius2:18px;--radius3:14px;
 }
-html,body{min-height:100vh;background:var(--bg);color:var(--text-light);font-family:var(--font-b);font-size:16px}
-.app{max-width:760px;margin:0 auto;padding:24px 16px 80px}
+body{font-family:'Heebo',Arial,sans-serif;background:var(--panel3);color:var(--text);min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(ellipse 70% 35% at 15% 0%,rgba(0,180,216,0.14),transparent),
+             radial-gradient(ellipse 60% 30% at 100% 10%,rgba(144,224,239,0.10),transparent)}
 
-/* masthead */
-.masthead{text-align:center;padding-bottom:20px;margin-bottom:8px;border-bottom:none}
-.masthead h1{font-size:28px;font-weight:700;color:var(--text-light);letter-spacing:2px;font-family:var(--font-h)}
-.masthead h1::after{content:' ⚓';font-size:22px}
-.masthead p{font-size:13px;color:rgba(255,255,255,0.4);margin-top:4px;letter-spacing:.5px}
-
-/* section title */
-.sec{font-size:11px;letter-spacing:1.5px;color:rgba(255,255,255,0.35);text-transform:uppercase;
-  margin:24px 0 10px;font-family:var(--font-h);font-weight:600;
-  display:flex;align-items:center;justify-content:space-between;border-left:none;padding-left:0}
-.sec span{border-left:none;padding-left:0}
-
-/* panels */
-.panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
-  padding:20px;margin-bottom:14px;box-shadow:var(--shadow)}
-
-/* wallet ring */
-.wallet-ring{display:flex;align-items:center;justify-content:center;gap:20px;flex-wrap:wrap}
-.donut-wrap{position:relative;width:120px;height:120px;flex-shrink:0}
-.donut-wrap canvas{width:120px!important;height:120px!important}
-.donut-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
-.donut-center .big{font-size:22px;font-weight:700;color:var(--accent);font-family:var(--font-h)}
-.wallet-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;flex:1;min-width:220px}
-.stat{background:rgba(255,255,255,0.04);border-radius:var(--r-sm);padding:14px 16px;border:1px solid var(--border)}
-.stat .lbl{font-size:10px;color:rgba(255,255,255,0.4);letter-spacing:1px;text-transform:uppercase;font-family:var(--font-h);font-weight:600}
-.stat .val{font-size:22px;color:var(--text-light);font-weight:700;margin-top:4px;direction:ltr;unicode-bidi:isolate}
-.stat .sub{font-size:11px;color:rgba(255,255,255,0.3);margin-top:2px}
-.pbar{height:6px;background:rgba(255,255,255,0.08);border-radius:3px;overflow:hidden;margin-top:10px}
-.pbar-fill{height:100%;border-radius:3px;transition:width .7s ease,background .4s}
-
-/* forms */
-.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.f{display:flex;flex-direction:column;gap:6px}
-.f.full{grid-column:1/-1}
-.f label{font-size:11px;color:rgba(255,255,255,0.4);letter-spacing:.8px;text-transform:uppercase;font-family:var(--font-h);font-weight:600}
-.f input,.f select{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
-  border-radius:var(--r-sm);padding:11px 14px;color:var(--text-light);font-family:var(--font-b);
-  font-size:15px;outline:none;width:100%;transition:border-color .2s}
-.f input:focus,.f select:focus{border-color:var(--accent)}
-.f select option{background:#1c1c24}
-
-/* buttons */
-.btn{display:inline-flex;align-items:center;gap:6px;font-family:var(--font-h);font-size:12px;font-weight:600;
-  letter-spacing:.5px;border-radius:50px;padding:10px 20px;cursor:pointer;transition:all .2s;border:1px solid}
-.btn-primary{background:var(--accent);border-color:var(--accent);color:#000;width:100%;
-  justify-content:center;margin-top:14px;font-size:14px;padding:13px;border-radius:var(--r-sm)}
-.btn-primary:hover{background:var(--accent2);border-color:var(--accent2);transform:translateY(-1px)}
-.btn-sm{padding:6px 14px;font-size:11px;border-color:rgba(255,255,255,0.15);
-  color:rgba(255,255,255,0.6);background:rgba(255,255,255,0.05)}
-.btn-sm:hover{border-color:var(--accent);color:var(--accent)}
-.btn-danger{border-color:rgba(255,71,87,0.3);color:var(--danger);background:transparent}
-.btn-danger:hover{background:rgba(255,71,87,0.1)}
-
-/* sailors */
-.sailor-row{display:flex;gap:8px;align-items:center;padding:8px 0;
-  border-bottom:1px solid rgba(255,255,255,0.05);flex-wrap:wrap}
-.sailor-row:last-child{border-bottom:none}
-.sailor-name{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
-  border-radius:var(--r-sm);padding:8px 12px;color:var(--text-light);font-family:var(--font-b);
-  font-size:14px;outline:none;flex:1;min-width:100px}
-.sailor-name:focus{border-color:var(--accent)}
-.sailor-paid{display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,0.4);
-  font-family:var(--font-h);white-space:nowrap;cursor:pointer}
-.sailor-paid input[type=checkbox]{width:15px;height:15px;accent-color:var(--accent);cursor:pointer}
-.btn-del-row{background:none;border:none;cursor:pointer;color:rgba(255,255,255,0.2);
-  font-size:20px;line-height:1;padding:0 4px;transition:color .2s;flex-shrink:0}
-.btn-del-row:hover{color:var(--danger)}
-.sailors-summary{font-size:12px;color:rgba(255,255,255,0.35);margin-top:10px;line-height:1.8}
-
-/* chart */
-.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
-.legend-item{display:flex;align-items:center;gap:6px;font-size:12px;color:rgba(255,255,255,0.5)}
-.legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0}
-
-/* filters */
-.filter-row{display:flex;gap:6px;margin-bottom:12px;flex-wrap:wrap}
-.fbtn{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);border-radius:50px;
-  padding:6px 14px;color:rgba(255,255,255,0.5);font-size:11px;cursor:pointer;font-family:var(--font-h);
-  font-weight:600;letter-spacing:.3px;transition:all .2s}
-.fbtn.active{background:var(--accent);border-color:var(--accent);color:#000}
-
-/* ledger */
-.ledger{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
-  overflow:hidden;margin-bottom:14px;box-shadow:var(--shadow)}
-.ledger-head{display:grid;grid-template-columns:78px 1fr 94px 74px 52px;gap:6px;
-  padding:10px 16px;background:rgba(255,255,255,0.03);font-size:10px;letter-spacing:1px;
-  color:rgba(255,255,255,0.3);font-family:var(--font-h);font-weight:600;text-transform:uppercase}
-.ledger-row{display:grid;grid-template-columns:78px 1fr 94px 74px 52px;gap:6px;
-  padding:12px 16px;border-top:1px solid rgba(255,255,255,0.04);align-items:center;
-  font-size:14px;transition:background .15s}
-.ledger-row:hover{background:rgba(255,255,255,0.03)}
-.badge{font-size:10px;padding:4px 8px;border-radius:50px;display:inline-block;
-  font-family:var(--font-h);font-weight:600;letter-spacing:.3px;white-space:nowrap}
-.amt{text-align:right;color:var(--text-light);font-weight:700;direction:ltr;unicode-bidi:isolate}
-.row-actions{display:flex;gap:4px;justify-content:flex-end}
-.btn-icon{background:none;border:none;cursor:pointer;font-size:15px;padding:3px;
-  color:rgba(255,255,255,0.2);transition:color .2s;line-height:1}
-.btn-icon:hover{color:var(--accent)}
-.btn-icon.del:hover{color:var(--danger)}
-.empty{text-align:center;padding:36px;color:rgba(255,255,255,0.25);font-style:italic;font-size:15px}
-
-/* modal */
-.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:200;
-  display:flex;align-items:center;justify-content:center;padding:16px;backdrop-filter:blur(8px)}
-.modal-bg.hidden{display:none}
-.modal{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);
-  padding:24px;width:100%;max-width:480px;box-shadow:var(--shadow)}
-.modal h3{font-family:var(--font-h);color:var(--text-light);font-size:15px;font-weight:700;
-  letter-spacing:.5px;margin-bottom:18px}
-.modal-actions{display:flex;gap:8px;margin-top:18px;justify-content:flex-end}
-
-/* setup banner */
-.setup-banner{background:rgba(255,165,0,0.08);border:1px solid rgba(255,165,0,0.25);
-  border-radius:var(--r-sm);padding:16px;margin-bottom:16px;font-size:13px;color:#ffa500;line-height:1.7}
-.setup-banner strong{font-size:11px;letter-spacing:1px;color:#ffb732;font-family:var(--font-h)}
-.setup-banner input{background:rgba(255,255,255,0.06);border:1px solid rgba(255,165,0,0.3);
-  border-radius:8px;padding:8px 12px;color:var(--text-light);font-size:13px;width:100%;
-  margin-top:6px;outline:none;font-family:monospace}
-
-/* sync bar */
-.sync-bar{display:flex;align-items:center;gap:8px;font-size:11px;font-family:var(--font-h);
-  font-weight:600;letter-spacing:.5px;color:rgba(255,255,255,0.3);padding:8px 0;margin-bottom:8px}
-.sync-dot{width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,0.2);flex-shrink:0;transition:background .3s}
-.sync-dot.ok{background:var(--success)}
-.sync-dot.err{background:var(--danger)}
-.sync-dot.spin{background:var(--accent);animation:pulse .8s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
-
-/* lock notice */
-#lockNotice{text-align:center;margin-top:12px;font-size:12px;color:rgba(255,255,255,0.35);font-family:var(--font-h)}
-#lockNotice span{color:var(--accent);cursor:pointer}
-#lockNotice span:hover{text-decoration:underline}
-
-/* toast */
-.toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(60px);
-  background:var(--surface);border:1px solid var(--accent);border-radius:50px;
-  padding:10px 24px;color:var(--accent);font-family:var(--font-h);font-size:12px;font-weight:600;
-  letter-spacing:.5px;opacity:0;transition:all .35s;pointer-events:none;z-index:999;white-space:nowrap;
-  box-shadow:0 8px 32px rgba(0,212,170,0.2)}
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-.bottom-bar{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
-
-/* Euro fix */
-.val,.amt{direction:ltr;unicode-bidi:isolate}
-
-@media(max-width:520px){
-  .fg{grid-template-columns:1fr}.f.full{grid-column:1}
-  .ledger-head,.ledger-row{grid-template-columns:66px 1fr 80px 62px 44px;gap:4px;padding:8px 10px;font-size:13px}
-  .wallet-ring{flex-direction:column}.wallet-stats{width:100%}
+/* Glass surfaces: every remaining card-like panel gets the frosted-glass treatment */
+.sidebar,.map-section,.filters-panel,.empty,.mobile-topbar{
+  backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
 }
+
+/* LAYOUT */
+.app{display:flex;min-height:100vh;position:relative;z-index:1}
+.sidebar{width:256px;flex-shrink:0;background:var(--panel);border-left:1px solid var(--border2);
+  display:flex;flex-direction:column;position:fixed;top:0;right:0;bottom:0;z-index:100;
+  -webkit-transition:transform .3s cubic-bezier(.4,0,.2,1);transition:transform .3s cubic-bezier(.4,0,.2,1);
+  overflow-y:auto;-webkit-overflow-scrolling:touch}
+.main{margin-right:256px;flex:1;padding:28px 24px 60px}
+
+/* SIDEBAR */
+.sidebar-logo{padding:22px 18px 18px;border-bottom:1px solid var(--border2);display:flex;align-items:center;gap:10px;flex-shrink:0}
+.logo-icon{width:36px;height:36px;border-radius:10px;background:var(--grad1);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0}
+.logo-text{font-size:13px;font-weight:700;color:var(--text);line-height:1.2}
+.logo-sub{font-size:10px;color:var(--text3)}
+.sidebar-section{padding:14px 12px 6px;font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;flex-shrink:0}
+.sidebar-nav{padding:0 8px;display:flex;flex-direction:column;gap:2px;flex-shrink:0}
+.nav-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:var(--radius3);font-size:13px;color:var(--text2);cursor:pointer;-webkit-transition:background .15s,color .15s;transition:background .15s,color .15s;border:none;background:none;width:100%;text-align:right;font-family:inherit;-webkit-appearance:none}
+.nav-item:hover,.nav-item:active{background:rgba(255,255,255,0.07);color:var(--text)}
+.nav-item.active{background:rgba(0,180,216,0.12);color:var(--accent2);font-weight:500}
+.sidebar-tl{padding:10px 12px;flex:1;overflow-y:auto;min-height:0;-webkit-overflow-scrolling:touch}
+.tl-title{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px}
+.tl-item{display:flex;align-items:flex-start;gap:9px;padding:8px 0;border-bottom:1px solid var(--border2);cursor:pointer}
+.tl-item:last-child{border-bottom:none}
+.tl-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;margin-top:5px}
+.tl-date{font-size:10px;color:var(--text3)}
+.tl-name{font-size:12px;color:var(--text2);line-height:1.3}
+.sidebar-bottom{padding:14px 12px;border-top:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:10px}
+.topbar-left h1{font-size:20px;font-weight:800;color:var(--text)}
+.topbar-left p{font-size:12px;color:var(--text3);margin-top:2px}
+.tag-pill{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.07);border:1px solid var(--border2);border-radius:999px;padding:6px 14px;font-size:12px;color:var(--text2)}
+.status-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;background:var(--green);box-shadow:0 0 6px rgba(30,158,107,0.9)}
+
+/* HERO */
+.hero{border-radius:28px;background:linear-gradient(135deg,#062439 0%,#0A4761 50%,#0077B6 100%);border:1px solid rgba(0,180,216,0.15);box-shadow:var(--shadow);padding:52px 36px;margin-bottom:20px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-60px;left:-60px;width:280px;height:280px;background:radial-gradient(circle,rgba(0,180,216,0.15),transparent 70%);pointer-events:none}
+.hero::after{content:'';position:absolute;bottom:-80px;right:80px;width:380px;height:380px;background:radial-gradient(circle,rgba(0,119,182,0.12),transparent 70%);pointer-events:none}
+.hero-inner{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:6px;background:rgba(0,180,216,0.12);border:1px solid rgba(0,180,216,0.25);border-radius:999px;padding:4px 14px;font-size:11px;font-weight:600;color:var(--accent);letter-spacing:.5px;text-transform:uppercase;margin-bottom:14px}
+.hero-title{font-size:32px;font-weight:900;color:#fff;line-height:1.1;letter-spacing:-1px;margin-bottom:10px}
+.hero-title span{background:var(--grad2);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero-desc{font-size:13px;color:rgba(255,255,255,0.5);max-width:400px;line-height:1.7}
+.hero-pills{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.hero-pill{display:inline-flex;align-items:center;gap:7px;background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.12);border-radius:999px;padding:5px 13px;font-size:12px;color:rgba(255,255,255,0.6)}
+.hero-pill-cta{background:rgba(0,180,216,0.14);border-color:rgba(0,180,216,0.35);color:var(--accent);text-decoration:none;font-weight:600;cursor:pointer;transition:background .2s,border-color .2s}
+.hero-pill-cta:hover{background:rgba(0,180,216,0.22);border-color:rgba(0,180,216,0.55)}
+.hero-right{text-align:center;flex-shrink:0}
+.hero-nm{font-size:56px;font-weight:900;color:#fff;line-height:1;letter-spacing:-2px}
+.hero-nm-label{font-size:12px;color:rgba(255,255,255,0.4);margin-top:4px}
+.hero-progress{margin-top:14px;background:rgba(255,255,255,0.08);border-radius:999px;height:5px;overflow:hidden;width:150px;margin-right:auto;margin-left:auto}
+.hero-progress-bar{height:100%;width:0%;background:var(--grad1);border-radius:999px;-webkit-transition:width 1.5s cubic-bezier(.4,0,.2,1);transition:width 1.5s cubic-bezier(.4,0,.2,1)}
+.hero-progress-label{font-size:11px;color:rgba(255,255,255,0.35);margin-top:6px}
+
+/* KPI */
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
+.kpi-card{background:var(--panel);border:1px solid var(--border2);border-radius:var(--radius);padding:20px;-webkit-transition:border-color .2s,-webkit-transform .2s;transition:border-color .2s,transform .2s}
+.kpi-card:hover{border-color:var(--border2);-webkit-transform:translateY(-2px);transform:translateY(-2px)}
+.kpi-icon{width:36px;height:36px;border-radius:var(--radius3);display:flex;align-items:center;justify-content:center;font-size:18px;margin-bottom:14px}
+.kpi-icon.blue{background:rgba(0,180,216,0.12)}
+.kpi-icon.indigo{background:rgba(0,119,182,0.12)}
+.kpi-icon.green{background:rgba(30,158,107,0.12)}
+.kpi-icon.amber{background:rgba(224,138,60,0.12)}
+.kpi-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px}
+.kpi-val{font-size:26px;font-weight:800;background:var(--grad1);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.kpi-sub{font-size:11px;color:var(--text3);margin-top:3px}
+
+/* WEATHER */
+.weather-strip{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;padding:4px 0 14px;margin-bottom:8px}
+.section-divider-h{height:1px;background:var(--border2);margin:24px 0}
+.weather-day{text-align:center}
+.weather-date{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;font-weight:600}
+.weather-icon{font-size:28px;margin-bottom:6px;line-height:1}
+.weather-temp{font-size:24px;font-weight:800;color:var(--text);letter-spacing:-0.5px}
+.weather-wind{font-size:11px;color:var(--text3);margin-top:4px}
+.weather-sea{font-size:11px;color:var(--accent2);margin-top:4px;font-weight:500}
+.weather-note{font-size:11px;color:var(--text3);margin-bottom:20px;padding-right:2px}
+.weather-note a{color:var(--accent2)}
+
+/* MAP */
+.map-section{background:var(--panel);border:1px solid var(--border2);border-radius:var(--radius);margin-bottom:20px;overflow:hidden}
+.map-header{display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--border2)}
+.map-header h3{font-size:14px;font-weight:700;color:var(--text)}
+#map-container{height:340px;position:relative;overflow:hidden}
+
+/* LEAFLET */
+.leaflet-container{background:#07182A !important;font-family:inherit !important}
+.leaflet-popup-content-wrapper{background:#0B2536;border:1px solid rgba(0,180,216,0.25);border-radius:10px;box-shadow:0 8px 32px rgba(0,0,0,0.5)}
+.leaflet-popup-tip{background:#0B2536}
+.leaflet-popup-content{margin:12px 14px;color:#f0f6ff}
+
+/* CONTENT GRID */
+.content-grid{display:grid;grid-template-columns:1fr 268px;gap:20px;align-items:start}
+
+/* FILTERS */
+.filters-panel{background:transparent;border:none;border-bottom:1px solid var(--border2);padding:4px 0 16px;margin-bottom:14px}
+.filters-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+.filters-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px}
+.filter-row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.filter-group{display:flex;flex-direction:column;gap:5px;flex:1;min-width:140px}
+.filter-label{font-size:11px;color:var(--text3)}
+select,input[type="text"]{height:36px;padding:0 12px;border-radius:var(--radius3);border:1px solid var(--border2);background:var(--panel2);color:var(--text);font-size:13px;font-family:inherit;width:100%;outline:none;-webkit-appearance:none;-moz-appearance:none;appearance:none;-webkit-transition:border-color .15s;transition:border-color .15s}
+select:focus,input:focus{border-color:var(--accent)}
+.type-toggle{display:flex;border:1px solid var(--border2);border-radius:var(--radius3);overflow:hidden;height:36px;background:var(--panel2)}
+.type-btn{padding:0 15px;border:none;background:transparent;color:var(--text3);font-size:13px;font-family:inherit;cursor:pointer;-webkit-appearance:none;-webkit-transition:background .15s,color .15s;transition:background .15s,color .15s}
+.type-btn.active{background:rgba(0,180,216,0.12);color:var(--accent2);font-weight:600}
+.btn-reset{height:36px;padding:0 13px;border-radius:var(--radius3);border:1px solid var(--border2);background:transparent;color:var(--text3);font-size:13px;font-family:inherit;cursor:pointer;display:flex;align-items:center;gap:6px;-webkit-appearance:none}
+.btn-reset:hover{background:var(--panel2);color:var(--text)}
+
+/* RESULTS */
+.results-count{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;margin-bottom:10px}
+.results{display:flex;flex-direction:column}
+.day-header{display:flex;align-items:center;gap:10px;padding:12px 0 6px;border-bottom:1px solid var(--border2);margin-top:8px}
+.day-header:first-child{margin-top:0}
+.day-badge{background:var(--turquoise);border:none;color:#fff;font-size:11px;font-weight:700;padding:4px 13px;border-radius:999px;box-shadow:0 4px 12px rgba(0,180,216,0.3)}
+.day-name{font-size:12px;font-weight:500;color:var(--text2);text-transform:uppercase;letter-spacing:.5px}
+.day-dist{font-size:11px;color:var(--text3);margin-right:auto}
+.leg-section{padding:18px 4px 18px 16px;border-right:3px solid transparent;border-bottom:1px solid var(--border2)}
+.leg-section:last-child{border-bottom:none}
+.leg-section.leg{border-right-color:var(--accent)}
+.leg-section.spot{border-right-color:var(--amber)}
+.leg-top{display:flex;align-items:center;gap:10px;margin-bottom:11px}
+.leg-badge{font-size:11px;font-weight:600;padding:4px 11px;border-radius:999px}
+.leg-badge.leg-type{background:rgba(0,180,216,0.1);color:var(--accent2);border:1px solid rgba(0,180,216,0.2)}
+.leg-badge.spot-type{background:rgba(224,138,60,0.1);color:var(--amber);border:1px solid rgba(224,138,60,0.25)}
+.leg-name{font-size:14px;font-weight:700;color:var(--text);flex:1;line-height:1.3}
+.leg-row{display:flex;align-items:center;gap:8px;padding:6px 0;font-size:13px;color:var(--text3);flex-wrap:wrap}
+.leg-row .place{color:var(--text);font-weight:500}
+.leg-row-arrow{color:var(--text3)}
+.leg-meta{display:flex;gap:18px;padding:6px 0;flex-wrap:wrap}
+.leg-field{font-size:13px;color:var(--text3);display:flex;align-items:center;gap:5px}
+.leg-field span{color:var(--text);font-weight:600}
+.leg-row-coords{font-size:11px;color:var(--text3);font-family:monospace,Courier,sans-serif}
+.coord-text{flex:1;line-height:1.4;word-break:break-all}
+.leg-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.action-btn{display:inline-flex;align-items:center;gap:6px;font-size:12px;padding:7px 13px;border-radius:var(--radius3);border:1px solid var(--border2);background:transparent;color:var(--text3);cursor:pointer;text-decoration:none;font-family:inherit;-webkit-appearance:none;-webkit-transition:all .15s;transition:all .15s}
+.action-btn:hover,.action-btn:active{background:var(--panel2);color:var(--text)}
+.action-btn.primary{background:rgba(0,180,216,0.1);border-color:rgba(0,180,216,0.25);color:var(--accent2)}
+.action-btn.primary:hover{background:rgba(0,180,216,0.18)}
+.copy-btn{background:none;border:none;cursor:pointer;color:var(--text3);padding:2px 6px;font-size:15px;display:flex;align-items:center;font-family:inherit}
+
+/* SIDE PANEL */
+.side-panel{display:flex;flex-direction:column}
+.side-section{padding:6px 2px}
+.section-label{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:14px}
+.side-divider{height:1px;background:var(--border2);margin:18px 0}
+.progress-items{display:flex;flex-direction:column;gap:9px}
+.progress-item{display:flex;align-items:center;gap:10px;font-size:12px}
+.progress-item-label{color:var(--text2);flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.progress-item-bar{flex:2;height:4px;background:var(--panel3);border-radius:999px;overflow:hidden}
+.progress-item-fill{height:100%;border-radius:999px;background:var(--grad1)}
+.progress-item-val{color:var(--text3);font-size:11px;width:34px;text-align:left;flex-shrink:0}
+.intel-row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border2);font-size:12px}
+.intel-row:last-child{border-bottom:none}
+
+/* EMPTY */
+.empty{text-align:center;padding:3rem 1rem;color:var(--text3);font-size:14px;background:var(--panel);border-radius:var(--radius);border:1px solid var(--border2)}
+
+/* MOBILE */
+.mobile-topbar{display:none;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--panel);border-bottom:1px solid var(--border2);position:-webkit-sticky;position:sticky;top:0;z-index:50}
+.hamburger{background:var(--panel2);border:1px solid var(--border2);border-radius:var(--radius3);padding:8px 12px;cursor:pointer;color:var(--text2);font-size:20px;-webkit-appearance:none;border:1px solid var(--border2)}
+.drawer-overlay{display:none;position:fixed;inset:0;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);z-index:200}
+.drawer-overlay.open{display:block}
+
+@media(max-width:1100px){.content-grid{grid-template-columns:1fr}}
+@media(max-width:768px){
+  .sidebar{-webkit-transform:translateX(100%);transform:translateX(100%)}
+  .sidebar.open{-webkit-transform:translateX(0);transform:translateX(0)}
+  .main{margin-right:0;padding:0 0 60px}
+  .main-inner{padding:14px}
+  .mobile-topbar{display:flex}
+  .topbar{margin-bottom:14px}
+  .hero{padding:22px 18px;border-radius:18px}
+  .hero-title{font-size:24px}
+  .hero-nm{font-size:44px}
+  .kpi-row{grid-template-columns:repeat(2,1fr)}
+  .weather-strip{grid-template-columns:repeat(3,1fr)}
+  .filter-row{-webkit-flex-direction:column;flex-direction:column;align-items:stretch}
+  .filter-group{width:100%}
+  select,input[type="text"]{min-width:unset;width:100%}
+}
+
+.flight-section-row{display:grid;grid-template-columns:1fr 1fr;gap:32px;margin-bottom:24px}
+.flight-section{padding:4px 0}
+.flight-header{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.flight-icon{font-size:24px;line-height:1}
+.flight-route-line{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.fk-route{font-size:15px;font-weight:700;color:var(--text);line-height:1.4}
+.fk-date{font-size:11px;color:var(--accent2);background:rgba(0,180,216,0.1);border:1px solid rgba(0,180,216,0.2);border-radius:999px;padding:2px 10px}
+.flight-time-row{display:flex;align-items:baseline;justify-content:space-between;padding:8px 0}
+.flight-time-divider{height:1px;background:var(--border2)}
+.fk-time-label{font-size:12px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px}
+.fk-time-val{font-size:20px;font-weight:800;color:var(--text);line-height:1}
+@media(max-width:600px){.flight-section-row{grid-template-columns:1fr;gap:0}.flight-section:first-child{padding-bottom:16px;border-bottom:1px solid var(--border2);margin-bottom:16px}}
 </style>
-
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0a1628">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Yudale">
-<link rel="apple-touch-icon" href="icon-512.png">
 </head>
-
 <body>
 <div class="app">
 
-  <div class="masthead">
-    <h1>⚓ Yudale</h1>
-    <p>ארנק ספינתי</p>
-  </div>
-
-
-  <!-- SYNC STATUS -->
-  <div class="sync-bar">
-    <div class="sync-dot" id="syncDot"></div>
-    <span id="syncMsg">לא מחובר</span>
-    <button class="btn btn-sm" style="margin-right:auto" onclick="loadAll()">↺ רענן</button>
-  </div>
-
-  <!-- WALLET OVERVIEW -->
-  <div class="panel">
-    <div class="wallet-ring">
-      <div class="donut-wrap">
-        <canvas id="donutChart"></canvas>
-        <div class="donut-center"><span class="big" id="pct">—</span></div>
+  <!-- ═══ SIDEBAR ═══ -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <div class="logo-icon">⛵</div>
+      <div>
+        <div class="logo-text">ונונו תומר</div>
+        <div class="logo-sub">Sailing Command Center</div>
       </div>
-      <div class="wallet-stats">
-        <div class="stat">
-          <div class="lbl">תקציב</div>
-          <div class="val" id="statTotal"><span dir="ltr">€0</span></div>
-          <div class="sub" id="statSub">—</div>
+    </div>
+    <div class="sidebar-section">ניווט</div>
+    <nav class="sidebar-nav">
+      <button class="nav-item active" onclick="window.scrollTo(0,0);closeDrawer()">🧭 סקירה כללית</button>
+      <button class="nav-item" onclick="jumpTo('map-section')">🗺 מפה</button>
+      <button class="nav-item" onclick="jumpTo('legs-section')">⚓ מקטעים</button>
+    </nav>
+    <div class="sidebar-section">לוח זמנים</div>
+    <div class="sidebar-tl" id="timeline-items"></div>
+    <div class="sidebar-bottom">
+      <div style="font-size:10px;color:var(--text3)">v3.0</div>
+    </div>
+  </aside>
+
+  <!-- ═══ MAIN ═══ -->
+  <main class="main">
+    <!-- Mobile topbar -->
+    <div class="mobile-topbar">
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="logo-icon" style="width:28px;height:28px;font-size:14px">⛵</div>
+        <span style="font-size:13px;font-weight:700;color:var(--text)">ונונו תומר</span>
+      </div>
+      <button class="hamburger" onclick="openDrawer()">☰</button>
+    </div>
+
+    <div class="main-inner" style="max-width:980px;margin:0 auto">
+
+      <!-- Topbar -->
+      <div class="topbar">
+        <div class="topbar-left">
+          <h1>ונונו תומר</h1>
+          <p>הפלגת האיים הסרונים · יולי 2026 · Saronic Gulf</p>
         </div>
-        <div class="stat">
-          <div class="lbl">הוצאות</div>
-          <div class="val" id="statSpent"><span dir="ltr">€0</span></div>
-          <div class="sub" id="statCount">0 קבלות</div>
-        </div>
-        <div class="stat" style="grid-column:1/-1">
-          <div class="lbl">יתרה</div>
-          <div class="val" id="statRemain"><span dir="ltr">€0</span></div>
-          <div class="pbar"><div class="pbar-fill" id="pbarFill" style="width:100%;background:var(--success)"></div></div>
+        <div class="topbar-right">
+          <div class="tag-pill">
+            <span class="status-dot" id="status-dot"></span>
+            <span id="status-text">מוכן להפלגה</span>
+          </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <!-- VOYAGE SETTINGS -->
-  <div class="sec"><span>⚓ הגדרות הפלגה</span></div>
-  <div class="panel">
-    <div class="f" style="margin-bottom:12px">
-      <label>שם ההפלגה</label>
-      <input type="text" id="cfgName" value="הפלגה 2025" oninput="scheduleConfigSave()">
-    </div>
-    <div id="paymentRounds"></div>
-    <button class="btn btn-sm" style="margin-top:10px" onclick="addPaymentRound()">+ הוסף סבב גבייה נוסף</button>
-  </div>
-
-  <!-- SAILORS -->
-  <div class="sec">
-    <span>🧑‍✈️ ניהול מפליגים</span>
-    <button class="btn btn-sm" onclick="toggleSailors()" id="sailorsToggleBtn" style="margin:0;border-left:none">▼ הצג</button>
-  </div>
-  <div class="panel" id="sailorsPanel" style="display:none">
-    <div id="sailorsList"></div>
-    <div class="sailors-summary" id="sailorsSummary"></div>
-    <button class="btn btn-sm" style="margin-top:12px" onclick="addSailor()">+ הוסף מפליג</button>
-  </div>
-
-  <!-- ADD RECEIPT -->
-  <div class="sec"><span>📋 הוספת הוצאה</span></div>
-  <div class="panel">
-    <div class="fg">
-      <div class="f"><label>סוג הוצאה</label>
-        <select id="fCat">
-          <option value="super">🛒 מזון</option>
-          <option value="alco">🍺 אלכוהול</option>
-          <option value="port">⚓ מיסי נמל / עגינה</option>
-          <option value="fuel">⛽ דלק</option>
-          <option value="marina">🔌 מים / חשמל</option>
-          <option value="trans">🚐 הסעות</option>
-          <option value="other">📌 אחר</option>
-        </select>
+      <!-- HERO -->
+      <div class="hero">
+        <div class="hero-inner">
+          <div class="hero-left">
+            <div class="hero-eyebrow">⚓ Expedition 2026</div>
+            <div class="hero-title"> הפלגת חברים <span>האיים הסרונים</span></div>
+            <div class="hero-desc">כ-12 מקטעי הפלגה ונקודות עגינה בין האיים היפים ביותר במפרץ הסרוני</div>
+            <div class="hero-pills">
+              <span class="hero-pill">📅 <span id="hero-pill-days">...</span></span>
+              <span class="hero-pill">📍 Alimos Marina</span>
+              <span class="hero-pill">🌊 Saronic Gulf</span>
+              <a href="briefing.html" class="hero-pill hero-pill-cta">📋 מפגש</a>
+            </div>
+          </div>
+          <div class="hero-right">
+            <div class="hero-nm" id="hero-nm">75.6</div>
+            <div class="hero-nm-label">Nautical Miles</div>
+            <div class="hero-progress"><div class="hero-progress-bar" id="hero-bar"></div></div>
+            <div class="hero-progress-label" id="hero-plabel">100% מסלול מתוכנן</div>
+          </div>
+        </div>
       </div>
-      <div class="f"><label>סכום (€)</label>
-        <input type="number" id="fAmount" placeholder="0.00" min="0" step="0.01" inputmode="decimal">
+
+      <!-- Flights (Section-based) -->
+      <div class="flight-section-row">
+        <div class="flight-section">
+          <div class="flight-header"><span class="flight-icon">🛫</span><span class="section-label" style="margin-bottom:0">טיסה הלוך</span></div>
+          <div class="flight-route-line">
+            <span class="fk-route" id="flight-out-route">טוען...</span>
+            <span class="fk-date" id="flight-out-date">—</span>
+          </div>
+          <div class="flight-time-row">
+            <span class="fk-time-label">המראה</span>
+            <span class="fk-time-val" id="flight-out-dep">—</span>
+          </div>
+          <div class="flight-time-divider"></div>
+          <div class="flight-time-row">
+            <span class="fk-time-label">נחיתה</span>
+            <span class="fk-time-val" id="flight-out-arr">—</span>
+          </div>
+        </div>
+        <div class="flight-section">
+          <div class="flight-header"><span class="flight-icon">🛬</span><span class="section-label" style="margin-bottom:0">טיסה חזור</span></div>
+          <div class="flight-route-line">
+            <span class="fk-route" id="flight-back-route">טוען...</span>
+            <span class="fk-date" id="flight-back-date">—</span>
+          </div>
+          <div class="flight-time-row">
+            <span class="fk-time-label">המראה</span>
+            <span class="fk-time-val" id="flight-back-dep">—</span>
+          </div>
+          <div class="flight-time-divider"></div>
+          <div class="flight-time-row">
+            <span class="fk-time-label">נחיתה</span>
+            <span class="fk-time-val" id="flight-back-arr">—</span>
+          </div>
+        </div>
       </div>
-      <div class="f"><label>תאריך</label><input type="date" id="fDate"></div>
-      <div class="f"><label>מיקום / נמל</label><input type="text" id="fLocation" placeholder="לדוגמה: קורפו"></div>
-      <div class="f full"><label>הערות (אופציונלי)</label><input type="text" id="fNotes" placeholder="פירוט הוצאה"></div>
-    </div>
-    <button class="btn btn-primary" id="addBtn" onclick="addEntry()">+ רשום הוצאה</button>
-    <div id="lockNotice" style="display:none;text-align:center;margin-top:10px;font-size:12px;color:var(--rope);font-family:var(--font-h)">
-      🔒 <span style="cursor:pointer;text-decoration:underline" onclick="promptUnlock()">לחץ לפתיחת מנעול להזנה</span>
-    </div>
-  </div>
+      <span id="kpi-days" style="display:none"></span>
+      <span id="kpi-legs" style="display:none"></span>
+      <span id="kpi-spots" style="display:none"></span>
+      <span id="kpi-nm" style="display:none"></span>
+      <span id="kpi-days-sub" style="display:none"></span>
+      <span id="kpi-legs-sub" style="display:none"></span>
 
-  <!-- CHART -->
-  <div class="sec"><span>📊 התפלגות הוצאות</span></div>
-  <div class="panel">
-    <div style="position:relative;height:200px"><canvas id="barChart"></canvas></div>
-    <div class="legend" id="legend"></div>
-  </div>
-
-  <!-- LEDGER -->
-  <div class="sec"><span>🗒 יומן הוצאות</span></div>
-  <div class="filter-row">
-    <button class="fbtn active" onclick="setFilter(this,'all')">הכל</button>
-    <button class="fbtn" onclick="setFilter(this,'super')">🛒 מזון</button>
-    <button class="fbtn" onclick="setFilter(this,'alco')">🍺 אלכוהול</button>
-    <button class="fbtn" onclick="setFilter(this,'port')">⚓ נמל</button>
-    <button class="fbtn" onclick="setFilter(this,'fuel')">⛽ דלק</button>
-    <button class="fbtn" onclick="setFilter(this,'marina')">🔌 מרינה</button>
-    <button class="fbtn" onclick="setFilter(this,'trans')">🚐 הסעות</button>
-    <button class="fbtn" onclick="setFilter(this,'other')">📌 אחר</button>
-  </div>
-  <div class="ledger">
-    <div class="ledger-head"><span>תאריך</span><span>מיקום / פירוט</span><span>קטגוריה</span><span style="text-align:right">סכום</span><span></span></div>
-    <div id="ledgerBody"></div>
-  </div>
-
-  <div class="bottom-bar">
-    <button class="btn btn-sm" onclick="exportCSV()">⬇ ייצוא CSV</button>
-    <button class="btn btn-sm" onclick="changePassword()">🔑 שנה סיסמה</button>
-  </div>
-
-</div>
-
-<!-- EDIT MODAL -->
-<div class="modal-bg hidden" id="editModal">
-  <div class="modal">
-    <h3>✏ עריכת הוצאה</h3>
-    <div class="fg">
-      <div class="f"><label>סוג הוצאה</label>
-        <select id="eCat">
-          <option value="super">🛒 מזון</option>
-          <option value="alco">🍺 אלכוהול</option>
-          <option value="port">⚓ מיסי נמל / עגינה</option>
-          <option value="fuel">⛽ דלק</option>
-          <option value="marina">🔌 מים / חשמל</option>
-          <option value="trans">🚐 הסעות</option>
-          <option value="other">📌 אחר</option>
-        </select>
+      <!-- WEATHER (Section-based) — הערכה לאזור הים האיוני, לאימות בזמן אמת ב-Windy -->
+      <div class="section-divider-h"></div>
+      <div class="section-label">תחזית</div>
+      <div class="weather-strip">
+        <div class="weather-day"><div class="weather-date">14/06 א'</div><div class="weather-icon">☀️</div><div class="weather-temp">28°C</div><div class="weather-wind">🌬 8–12 kn</div><div class="weather-sea">🌊 0.3m</div></div>
+        <div class="weather-day"><div class="weather-date">15/06 ב'</div><div class="weather-icon">🌤️</div><div class="weather-temp">27°C</div><div class="weather-wind">🌬 10–15 kn</div><div class="weather-sea">🌊 0.5m</div></div>
+        <div class="weather-day"><div class="weather-date">16/06 ג'</div><div class="weather-icon">⛅</div><div class="weather-temp">26°C</div><div class="weather-wind">🌬 12–18 kn</div><div class="weather-sea">🌊 0.6m</div></div>
+        <div class="weather-day"><div class="weather-date">17/06 ד'</div><div class="weather-icon">☀️</div><div class="weather-temp">29°C</div><div class="weather-wind">🌬 6–10 kn</div><div class="weather-sea">🌊 0.2m</div></div>
+        <div class="weather-day"><div class="weather-date">18-19/06</div><div class="weather-icon">☀️</div><div class="weather-temp">28°C</div><div class="weather-wind">🌬 8–14 kn</div><div class="weather-sea">🌊 0.4m</div></div>
       </div>
-      <div class="f"><label>סכום (€)</label><input type="number" id="eAmount" min="0" step="0.01" inputmode="decimal"></div>
-      <div class="f"><label>תאריך</label><input type="date" id="eDate"></div>
-      <div class="f"><label>מיקום / נמל</label><input type="text" id="eLocation"></div>
-      <div class="f full"><label>הערות</label><input type="text" id="eNotes"></div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-sm" onclick="closeModal()">ביטול</button>
-      <button class="btn btn-sm" style="border-color:var(--brass);color:var(--brass-light)" onclick="saveEdit()">✓ שמור</button>
-    </div>
-  </div>
-</div>
+      <div class="weather-note">⚠️ הערכה לאזור הים האיוני — לאימות בזמן אמת: <a href="https://www.windy.com/?37.5,23.3,8" target="_blank">Windy</a></div>
+      <div class="section-divider-h"></div>
 
-<div class="toast" id="toast"></div>
+      <!-- MAP -->
+      <div class="map-section" id="map-section">
+        <div class="map-header">
+          <h3>🗺 מפת מסלול אינטראקטיבית</h3>
+          <span style="font-size:11px;color:var(--text3)" id="map-label">מפה סכמטית · Ionian Sea</span>
+        </div>
+        <div id="map-container"></div>
+      </div>
+
+      <!-- CONTENT GRID -->
+      <div class="content-grid" id="legs-section">
+        <!-- Filters + Results -->
+        <div>
+          <div class="filters-panel">
+            <div class="filters-header">
+              <div class="filters-title">🔽 סינון</div>
+              <button class="btn-reset" onclick="resetFilters()">↺ אפס</button>
+            </div>
+            <div class="filter-row">
+              <div class="filter-group">
+                <div class="filter-label">📅 תאריך</div>
+                <select id="date-filter" onchange="applyFilters()">
+                  <option value="">כל הימים</option>
+                  <option value="2026-07-05">05/07 — יום ראשון</option>
+                  <option value="2026-07-06">06/07 — יום שני</option>
+                  <option value="2026-07-07">07/07 — יום שלישי</option>
+                  <option value="2026-07-08">08/07 — יום רביעי</option>
+                  <option value="2026-07-09">09/07 — יום חמישי</option>
+                  <option value="2026-07-10">10/07 — יום שישי</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <div class="filter-label">📍 מקום</div>
+                <input type="text" id="place-filter" placeholder="חפש מקום..." oninput="applyFilters()"/>
+              </div>
+              <div class="filter-group">
+                <div class="filter-label">🔽 סוג</div>
+                <div class="type-toggle">
+                  <button class="type-btn active" onclick="setType('all',this)">הכל</button>
+                  <button class="type-btn" onclick="setType('Leg',this)">LEG</button>
+                  <button class="type-btn" onclick="setType('Spot',this)">SPOT</button>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="results-count" id="results-count"></div>
+          <div class="results" id="results"></div>
+        </div>
+
+        <!-- Side Panel -->
+        <div class="side-panel">
+          <div class="side-section">
+            <div class="section-label">📊 התקדמות יומית</div>
+            <div class="progress-items" id="progress-items"></div>
+          </div>
+          <div class="side-divider"></div>
+          <div class="side-section">
+            <div class="section-label">💡 Route Intelligence</div>
+            <div id="intel-rows"></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /main-inner -->
+  </main>
+</div><!-- /app -->
+
+<div class="drawer-overlay" id="drawer-overlay" onclick="closeDrawer()"></div>
 
 <script>
-// ══ CATEGORIES ══
-const CAT = {
-  super: {label:'מזון',             emoji:'🛒', color:'#1d9e75', bg:'rgba(29,158,117,0.18)'},
-  alco:  {label:'אלכוהול',          emoji:'🍺', color:'#ba7517', bg:'rgba(186,117,23,0.18)'},
-  port:  {label:'מיסי נמל / עגינה', emoji:'⚓', color:'#378add', bg:'rgba(55,138,221,0.18)'},
-  fuel:  {label:'דלק',              emoji:'⛽', color:'#e24b4a', bg:'rgba(226,75,74,0.18)'},
-  marina:{label:'מים / חשמל',       emoji:'🔌', color:'#7f77dd', bg:'rgba(127,119,221,0.18)'},
-  trans: {label:'הסעות',            emoji:'🚐', color:'#d4537e', bg:'rgba(212,83,126,0.18)'},
-  other: {label:'אחר',              emoji:'📌', color:'#888780', bg:'rgba(136,135,128,0.18)'}
-};
+// ══════════════════════════════════════════════
+// DATA — עדכן כאן את הנתונים בהתאם ל-Google Sheets
+// ══════════════════════════════════════════════
+var DATA = [
+  {date:"2026-06-14",day:"יום ראשון",leg:"Leg1",type:"Leg",from:"Lefkas Marina",to:"Abelaki Bay",coordFrom:"38° 49.87' N, 20° 42.77' E",coordTo:"38° 39.97' N, 20° 47.40' E",dist:"11",dur:"02h:10'",navily:"https://www.navily.com/mouillage/abelaki-bay/18128"},
+  {date:"2026-06-14",day:"יום ראשון",leg:"Leg1.1",type:"Leg",from:"Abelaki Bay",to:"Spartakhori (Maganisi) Marina",coordFrom:"38° 39.97' N, 20° 47.40' E",coordTo:"38° 39.70' N, 20° 45.55' E",dist:"3.14",dur:"00h:37'",navily:"https://www.navily.com/port/spartakhori-marina/1439"},
+  {date:"2026-06-14",day:"יום ראשון",leg:"Spot",type:"Spot",from:"",to:"Ormos Kapela",coordFrom:"",coordTo:"38° 40.43' N, 20° 46.93' E",dist:"",dur:"",navily:"https://www.navily.com/mouillage/ormos-kapela/24020"},
+  {date:"2026-06-14",day:"יום ראשון",leg:"Spot",type:"Spot",from:"",to:"Atherinos",coordFrom:"",coordTo:"38° 39.80' N, 20° 47.93' E",dist:"",dur:"",navily:"https://www.navily.com/mouillage/atherinos/22953"},
+  {date:"2026-06-15",day:"יום שני",leg:"Leg2",type:"Leg",from:"Spartakhori (Maganisi) Marina",to:"Afales Beach North",coordFrom:"38° 39.70' N, 20° 45.55' E",coordTo:"38° 28.43' N, 20° 37.98' E",dist:"14.7",dur:"02h:55'",navily:"https://www.navily.com/mouillage/afales-beach-north/60515"},
+  {date:"2026-06-15",day:"יום שני",leg:"Leg2.2",type:"Leg",from:"Afales Beach North",to:"Fiskardo, Kefalonia",coordFrom:"38° 28.43' N, 20° 37.98' E",coordTo:"38° 27.65' N, 20° 34.55' E",dist:"3.4",dur:"00h:41'",navily:"https://www.navily.com/port/fiskardo-harbour/10921"},
+  {date:"2026-06-15",day:"יום שני",leg:"Spot",type:"Spot",from:"",to:"Vathy",coordFrom:"",coordTo:"38° 21.88' N, 20° 43.17' E",dist:"",dur:"",navily:"https://www.navily.com/port/vathy-harbour/11616"},
+  {date:"2026-06-15",day:"יום שני",leg:"Spot",type:"Spot",from:"",to:"Kioni, Ithaka",coordFrom:"",coordTo:"38° 26.95' N, 20° 41.43' E",dist:"",dur:"",navily:"https://www.navily.com/port/kioni/20640"},
+  {date:"2026-06-15",day:"יום שני",leg:"Spot",type:"Spot",from:"",to:"Sarakiniko, Ithaka",coordFrom:"",coordTo:"38° 21.98' N, 20° 44.72' E",dist:"",dur:"",navily:"https://www.navily.com/mouillage/sarakiniko-hulla-beach/23476"},
+  {date:"2026-06-15",day:"יום שני",leg:"Spot",type:"Spot",from:"",to:"Ligia - Ithaka",coordFrom:"",coordTo:"38° 20.08' N, 20° 44.80' E",dist:"",dur:"",navily:"https://www.navily.com/mouillage/limeniskos-agios-ilias/27103"},
+  {date:"2026-06-16",day:"יום שלישי",leg:"Leg3",type:"Leg",from:"Fiskardo, Kefalonia",to:"Evreti North",coordFrom:"38° 27.65' N, 20° 34.55' E",coordTo:"38° 26.28' N, 20° 35.10' E",dist:"7.2",dur:"01h:26'",navily:"https://www.navily.com/mouillage/evreti-north/48884"},
+  {date:"2026-06-16",day:"יום שלישי",leg:"Leg3.1",type:"Leg",from:"Evreti North",to:"Fiskardo, Kefalonia",coordFrom:"38° 26.28' N, 20° 35.10' E",coordTo:"38° 27.65' N, 20° 34.55' E",dist:"7.2",dur:"01h:26'",navily:"https://www.navily.com/port/fiskardo-harbour/10921"},
+  {date:"2026-06-16",day:"יום שלישי",leg:"Spot",type:"Spot",from:"",to:"Ormos Antisamos",coordFrom:"",coordTo:"38° 15.83' N, 20° 40.58' E",dist:"",dur:"",navily:"https://www.navily.com/port/fiskardo-harbour/10921"},
+  {date:"2026-06-16",day:"יום שלישי",leg:"Spot",type:"Spot",from:"",to:"Sami",coordFrom:"",coordTo:"38° 15.20' N, 20° 38.90' E",dist:"",dur:"",navily:"https://www.navily.com/port/port-of-sami/1446"},
+  {date:"2026-06-17",day:"יום רביעי",leg:"Leg4",type:"Leg",from:"Fiskardo, Kefalonia",to:"Katsiki",coordFrom:"38° 27.65' N, 20° 34.55' E",coordTo:"38° 35.85' N, 20° 32.92' E",dist:"9.8",dur:"01h:57'",navily:"https://www.navily.com/mouillage/katsiki/42000"},
+  {date:"2026-06-17",day:"יום רביעי",leg:"Leg4.1",type:"Leg",from:"Katsiki",to:"Sivota",coordFrom:"38° 35.85' N, 20° 32.92' E",coordTo:"38° 37.40' N, 20° 41.03' E",dist:"11.7",dur:"02h:20'",navily:"https://www.navily.com/mouillage/sivota/30588"},
+  {date:"2026-06-18",day:"יום חמישי",leg:"Leg5",type:"Leg",from:"Sivota",to:"Tranquil Bay",coordFrom:"38° 37.40' N, 20° 41.03' E",coordTo:"38° 42.13' N, 20° 42.78' E",dist:"12",dur:"02h:24'",navily:"https://www.navily.com/mouillage/tranquil-bay/14328"},
+  {date:"2026-06-19",day:"יום שישי",leg:"Leg6",type:"Leg",from:"Tranquil Bay",to:"Varko bay",coordFrom:"38° 42.13' N, 20° 42.78' E",coordTo:"38° 45.93' N, 20° 48.27' E",dist:"5.8",dur:"01h:10'",navily:"https://www.navily.com/mouillage/varko/17798"},
+  {date:"2026-06-19",day:"יום שישי",leg:"Leg6.1",type:"Leg",from:"Varko bay",to:"Lefkas Marina",coordFrom:"38° 45.93' N, 20° 48.27' E",coordTo:"38° 49.87' N, 20° 42.77' E",dist:"7.6",dur:"01h:31'",navily:"https://www.navily.com/port/d-marin-lefkas-marina/1405"}
+];
 
-// ══ STATE ══
-let entries       = [];
-let sailors       = [];
-let paymentRounds = [{id:1, label:'גבייה ראשונה', amount:350}];
-let filter        = 'all';
-let editId        = null;
-let sailorsVisible = false;
-let donut, bar;
-let configSaveTimer = null;
-let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxCKECoNcRtC9fbPlS7IET8EXn5M86a3cF8tdNTyysnMiGpqHrnlpdGCXRdLuC1pJsIKQ/exec';
+var activeType = "all";
 
-// ══ SETUP URL ══
-function confirmScriptUrl() {
-  const val = document.getElementById('scriptUrlInput').value.trim();
-  if (!val) { alert('נא להזין URL'); return; }
-  SCRIPT_URL = val;
-  localStorage.setItem('shipwallet_script_url', SCRIPT_URL);
-  document.getElementById('setupBanner').style.display = 'none';
-  loadAll();
-}
-
-function onScriptUrlChange() {
-  const val = document.getElementById('scriptUrlInput').value.trim();
-  if (val.length > 20 && val.includes('script.google.com') && val.includes('exec')) {
-    SCRIPT_URL = val;
-    localStorage.setItem('shipwallet_script_url', SCRIPT_URL);
-    document.getElementById('setupBanner').style.display = 'none';
-    loadAll();
-  }
+// ── UTILS ──
+function jumpTo(id) {
+  var el = document.getElementById(id);
+  if (el) el.scrollIntoView({behavior:'smooth'});
+  closeDrawer();
 }
 
-function initSetupBanner() {
-  document.getElementById('setupBanner').style.display = 'none';
+function parseCoord(str) {
+  if (!str) return null;
+  var m = str.match(/([\d.]+)[°\s]+([\d.]+)['\s]*N[,\s]+([\d.]+)[°\s]+([\d.]+)['\s]*E/i);
+  if (!m) return null;
+  return { lat: parseFloat(m[1]) + parseFloat(m[2])/60, lng: parseFloat(m[3]) + parseFloat(m[4])/60 };
 }
 
-// ══ API ══
-async function api(params) {
-  if (!SCRIPT_URL) { setSyncStatus('err','לא מוגדר Script URL'); return null; }
-  setSyncStatus('spin','מתחבר...');
-  try {
-    // GET for reads, POST for writes
-    let resp;
-    if (params.action === 'getAll') {
-      resp = await fetch(SCRIPT_URL + '?action=getAll', {redirect:'follow'});
-    } else {
-      resp = await fetch(SCRIPT_URL, {
-        method:'POST', redirect:'follow',
-        headers:{'Content-Type':'text/plain'},
-        body: JSON.stringify(params)
-      });
-    }
-    const data = await resp.json();
-    if (data.error) throw new Error(data.error);
-    setSyncStatus('ok', 'מסונכרן · ' + timeNow());
-    return data;
-  } catch(e) {
-    setSyncStatus('err', 'שגיאת תקשורת: ' + e.message);
-    return null;
-  }
-}
-
-// ══ LOAD ALL ══
-async function loadAll() {
-  const data = await api({action:'getAll'});
-  if (!data) return;
-  entries       = (data.entries || []).reverse(); // newest first
-  sailors       = data.sailors       || [];
-  paymentRounds = data.paymentRounds || [{id:1,label:'גבייה ראשונה',amount:350}];
-  if (!sailors.length) initDefaultSailors();
-  if (data.voyageName) document.getElementById('cfgName').value = data.voyageName;
-  renderPaymentRounds();
-  refresh();
-}
-
-// ══ ADD ENTRY ══
-async function addEntry() {
-  const amt = parseFloat(document.getElementById('fAmount').value);
-  if (!amt || amt <= 0) { showToast('נא להזין סכום תקין'); return; }
-  const entry = {
-    action:   'addEntry',
-    cat:      document.getElementById('fCat').value,
-    amount:   amt,
-    date:     document.getElementById('fDate').value,
-    location: document.getElementById('fLocation').value.trim() || '—',
-    notes:    document.getElementById('fNotes').value.trim()
-  };
-  setAddBtn(false);
-  const res = await api(entry);
-  setAddBtn(true);
-  if (!res) return;
-  // add locally with returned id
-  entries.unshift({...entry, id: res.id, action: undefined});
-  document.getElementById('fAmount').value   = '';
-  document.getElementById('fNotes').value    = '';
-  document.getElementById('fLocation').value = '';
-  showToast('✓ הוצאה נרשמה');
-  refresh();
-}
-
-// ══ DELETE ENTRY ══
-async function deleteEntry(id) {
-  if (!confirm('למחוק הוצאה זו?')) return;
-  entries = entries.filter(e => e.id !== id); // optimistic
-  refresh();
-  await api({action:'delEntry', id});
-  showToast('הוצאה נמחקה');
-}
-
-// ══ EDIT ENTRY ══
-function openEdit(id) {
-  const e = entries.find(x => x.id == id); if (!e) return;
-  editId = id;
-  document.getElementById('eCat').value      = e.cat;
-  document.getElementById('eAmount').value   = e.amount;
-  document.getElementById('eDate').value     = e.date;
-  document.getElementById('eLocation').value = e.location === '—' ? '' : e.location;
-  document.getElementById('eNotes').value    = e.notes || '';
-  document.getElementById('editModal').classList.remove('hidden');
-}
-function closeModal() { document.getElementById('editModal').classList.add('hidden'); editId=null; }
-
-async function saveEdit() {
-  const amt = parseFloat(document.getElementById('eAmount').value);
-  if (!amt || amt <= 0) { showToast('נא להזין סכום תקין'); return; }
-  const updated = {
-    action:   'editEntry',
-    id:       editId,
-    cat:      document.getElementById('eCat').value,
-    amount:   amt,
-    date:     document.getElementById('eDate').value,
-    location: document.getElementById('eLocation').value.trim() || '—',
-    notes:    document.getElementById('eNotes').value.trim()
-  };
-  const idx = entries.findIndex(e => e.id == editId);
-  if (idx !== -1) entries[idx] = {...entries[idx], ...updated}; // optimistic
-  closeModal(); refresh();
-  await api(updated);
-  showToast('✓ הוצאה עודכנה');
-}
-
-document.getElementById('editModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
-
-// ══ CONFIG SAVE (debounced) ══
-function scheduleConfigSave() {
-  clearTimeout(configSaveTimer);
-  configSaveTimer = setTimeout(pushConfig, 1200);
-}
-
-async function pushConfig() {
-  await api({
-    action:        'saveConfig',
-    voyageName:    document.getElementById('cfgName').value,
-    sailors,
-    paymentRounds
-  });
-}
-
-// ══ PAYMENT ROUNDS ══
-function renderPaymentRounds() {
-  const el = document.getElementById('paymentRounds');
-  el.innerHTML = paymentRounds.map((r,i) => `
-    <div style="display:grid;grid-template-columns:1fr 130px auto;gap:10px;align-items:end;margin-bottom:10px">
-      <div class="f"><label>שם סבב גבייה ${i+1}</label>
-        <input type="text" value="${r.label||''}" placeholder="גבייה ראשונה"
-          oninput="paymentRounds[${i}].label=this.value;scheduleConfigSave();refresh()">
-      </div>
-      <div class="f"><label>סכום לאדם (€)</label>
-        <input type="number" value="${r.amount||0}" min="0" step="1" inputmode="decimal"
-          oninput="paymentRounds[${i}].amount=+this.value||0;scheduleConfigSave();refresh()">
-      </div>
-      <div style="padding-bottom:2px">
-        ${paymentRounds.length>1
-          ? `<button class="btn-del-row" onclick="removePaymentRound(${i})">×</button>`
-          : '<span style="width:28px;display:inline-block"></span>'}
-      </div>
-    </div>`).join('');
-}
-
-function addPaymentRound() {
-  paymentRounds.push({id:Date.now(), label:`גבייה ${paymentRounds.length+1}`, amount:0});
-  sailors.forEach(s=>{ if(Array.isArray(s.paid)) s.paid.push(false); });
-  renderPaymentRounds(); refresh(); scheduleConfigSave();
-}
-function removePaymentRound(i) {
-  if(paymentRounds.length<=1){showToast('חייב להישאר לפחות סבב גבייה אחד');return;}
-  paymentRounds.splice(i,1);
-  sailors.forEach(s=>{ if(Array.isArray(s.paid)) s.paid.splice(i,1); });
-  renderPaymentRounds(); refresh(); scheduleConfigSave();
-}
-
-// ══ SAILORS ══
-function initDefaultSailors() {
-  sailors = Array.from({length:10},(_,i)=>({id:Date.now()+i,name:'',paid:paymentRounds.map(()=>true)}));
-}
-function toggleSailors() {
-  sailorsVisible=!sailorsVisible;
-  document.getElementById('sailorsPanel').style.display=sailorsVisible?'block':'none';
-  document.getElementById('sailorsToggleBtn').textContent=sailorsVisible?'▲ הסתר':'▼ הצג';
-}
-function renderSailors() {
-  const list=document.getElementById('sailorsList');
-  list.innerHTML=sailors.map((s,i)=>{
-    const checks=paymentRounds.map((r,ri)=>`
-      <label class="sailor-paid">
-        <input type="checkbox" ${(s.paid&&s.paid[ri])?'checked':''}
-          onchange="sailors[${i}].paid[${ri}]=this.checked;refresh();scheduleConfigSave()">
-        ${r.label} \u200E€${r.amount}
-      </label>`).join('');
-    return `<div class="sailor-row">
-      <input class="sailor-name" type="text" value="${s.name||''}" placeholder="שם מפליג ${i+1}"
-        oninput="sailors[${i}].name=this.value;scheduleConfigSave()">
-      ${checks}
-      <button class="btn-del-row" onclick="removeSailor(${i})">×</button>
-    </div>`;
-  }).join('');
-  updateSailorsSummary();
-}
-function updateSailorsSummary() {
-  const parts=paymentRounds.map((r,ri)=>{
-    const pc=sailors.filter(s=>s.paid&&s.paid[ri]).length;
-    return `${r.label}: ${pc}/${sailors.length} שילמו (${eurStr((pc*r.amount).toLocaleString())})`;
-  });
-  const tot=paymentRounds.reduce((s,r,ri)=>s+sailors.filter(x=>x.paid&&x.paid[ri]).length*r.amount,0);
-  document.getElementById('sailorsSummary').textContent=parts.join('\n')+(parts.length>1?`\nסה"כ: ${eurStr(tot.toLocaleString())}`:'');
-}
-function addSailor(){sailors.push({id:Date.now(),name:'',paid:paymentRounds.map(()=>true)});renderSailors();refresh();scheduleConfigSave();}
-function removeSailor(i){if(sailors.length<=1){showToast('חייב להישאר לפחות מפליג אחד');return;}sailors.splice(i,1);renderSailors();refresh();scheduleConfigSave();}
-
-// ══ FILTER ══
-function setFilter(el,f){filter=f;document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('active'));el.classList.add('active');renderLedger();}
-
-// ══ REFRESH ══
-function refresh() {
-  const total=paymentRounds.reduce((s,r,ri)=>s+sailors.filter(x=>x.paid&&x.paid[ri]).length*r.amount,0);
-  const spent=entries.reduce((s,e)=>s+parseFloat(e.amount||0),0);
-  const remain=total-spent;
-  const pct=total>0?Math.max(0,Math.round((remain/total)*100)):0;
-  const color=pct<25?'#d44':pct<50?'#c8a84b':'#2a9';
-  const roundsSummary=paymentRounds.map(r=>`\u200E€${r.amount}`).join('+');
-
-  document.getElementById('statTotal').textContent=eur(total.toLocaleString());
-  document.getElementById('statSub').textContent=`${sailors.length} מפליגים · ${roundsSummary} לאדם`;
-  document.getElementById('statSpent').textContent=eur(spent.toFixed(2));
-  document.getElementById('statCount').textContent=`${entries.length} קבלות`;
-  const remEl=document.getElementById('statRemain');
-  remEl.textContent=eur(remain.toFixed(2));remEl.style.color=color;
-  document.getElementById('pct').textContent=pct+'%';
-  const fill=document.getElementById('pbarFill');fill.style.width=pct+'%';fill.style.background=color;
-
-  updateDonut(pct,100-pct,color);updateBar();renderLedger();renderSailors();
-}
-
-// ══ DONUT ══
-function updateDonut(rem,sp,color){
-  const bg='rgba(255,255,255,0.07)';
-  if(donut){donut.data.datasets[0].data=[rem,sp];donut.data.datasets[0].backgroundColor=[color,bg];donut.update();return;}
-  donut=new Chart(document.getElementById('donutChart'),{type:'doughnut',
-    data:{datasets:[{data:[rem,sp],backgroundColor:[color,bg],borderWidth:0}]},
-    options:{cutout:'74%',responsive:false,animation:{duration:700},plugins:{legend:{display:false},tooltip:{enabled:false}}}});
-}
-
-// ══ BAR ══
-function updateBar(){
-  const totals={};Object.keys(CAT).forEach(k=>totals[k]=0);
-  entries.forEach(e=>totals[e.cat]=(totals[e.cat]||0)+parseFloat(e.amount||0));
-  const keys=Object.keys(CAT).filter(k=>totals[k]>0);
-  if(!keys.length){if(bar){bar.data.labels=[];bar.data.datasets[0].data=[];bar.update();}
-    document.getElementById('legend').innerHTML='<span style="color:#8b7355;font-style:italic;font-size:13px">אין הוצאות עדיין</span>';return;}
-  const labels=keys.map(k=>CAT[k].emoji+' '+CAT[k].label);
-  const data=keys.map(k=>parseFloat(totals[k].toFixed(2)));
-  const colors=keys.map(k=>CAT[k].color);
-  const totalSp=data.reduce((a,b)=>a+b,0);
-  if(bar){bar.data.labels=labels;bar.data.datasets[0].data=data;bar.data.datasets[0].backgroundColor=colors;bar.update();}
-  else{bar=new Chart(document.getElementById('barChart'),{type:'bar',
-    data:{labels,datasets:[{data,backgroundColor:colors,borderRadius:5,borderSkipped:false}]},
-    options:{responsive:true,maintainAspectRatio:false,
-      plugins:{legend:{display:false},tooltip:{callbacks:{label:ctx=>` \u200E€${ctx.raw.toFixed(2)}`}}},
-      scales:{x:{ticks:{color:'#8b7355',font:{size:10},maxRotation:30},grid:{color:'rgba(200,168,75,0.08)'}},
-              y:{ticks:{color:'#8b7355',callback:v=>`\u200E€${v}`,font:{size:11}},grid:{color:'rgba(200,168,75,0.08)'},border:{color:'transparent'}}}}});}
-  document.getElementById('legend').innerHTML=keys.map((k,i)=>
-    `<span class="legend-item"><span class="legend-dot" style="background:${colors[i]}"></span>${labels[i]} — <span dir="ltr">€${data[i].toFixed(0)}</span> (${Math.round(data[i]/totalSp*100)}%)</span>`).join('');
-}
-
-// ══ LEDGER ══
-function renderLedger(){
-  const body=document.getElementById('ledgerBody');
-  const filtered=filter==='all'?entries:entries.filter(e=>e.cat===filter);
-  if(!filtered.length){body.innerHTML='<div class="empty">אין הוצאות ביומן</div>';return;}
-  body.innerHTML=filtered.map(e=>{
-    const c=CAT[e.cat]||CAT.other;
-    const d = formatDateDisplay(e.date);
-    const note=e.notes?`<br><span style="font-size:11px;color:#8b7355;font-style:italic">${e.notes}</span>`:'';
-    return `<div class="ledger-row">
-      <span style="color:var(--rope);font-size:12px">${d}</span>
-      <span style="color:var(--sail)">${e.location||'—'}${note}</span>
-      <span><span class="badge" style="background:${c.bg};color:${c.color}">${c.label}</span></span>
-      <span class="amt">${eur(e.amount)}</span>
-      <span class="row-actions">
-        <button class="btn-icon" onclick="openEdit('${e.id}')" title="עריכה">✏</button>
-        <button class="btn-icon del" onclick="deleteEntry('${e.id}')" title="מחק">×</button>
-      </span>
-    </div>`;
-  }).join('');
-  updateLockUI();
-}
-
-// ══ EXPORT CSV ══
-function exportCSV(){
-  if(!entries.length){showToast('אין נתונים לייצוא');return;}
-  const rows=[['תאריך','מיקום','קטגוריה','סכום','הערות']];
-  entries.forEach(e=>{const c=CAT[e.cat]||CAT.other;rows.push([e.date,e.location,c.label,parseFloat(e.amount||0).toFixed(2),e.notes||'']);});
-  const bom='\uFEFF';
-  const csv=bom+rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
-  const a=document.createElement('a');a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-  a.download='ship_wallet_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
-  showToast('✓ CSV הורד');
-}
-
-// ══ PASSWORD / LOCK ══
-const DEFAULT_PASSWORD = '5';
-const PASS_KEY = 'shipwallet_pass';
-const UNLOCK_KEY = 'shipwallet_unlocked';
-
-function getPassword() {
-  return localStorage.getItem(PASS_KEY) || DEFAULT_PASSWORD;
-}
-function isUnlocked() {
-  return sessionStorage.getItem(UNLOCK_KEY) === 'yes';
-}
-function initLock() {
-  updateLockUI();
-}
-function updateLockUI() {
-  const unlocked = isUnlocked();
-  const addBtn   = document.getElementById('addBtn');
-  const notice   = document.getElementById('lockNotice');
-  addBtn.style.display  = unlocked ? 'flex'  : 'none';
-  notice.style.display  = unlocked ? 'none'  : 'block';
-  // הסתר/הצג כפתורי עריכה ומחיקה ביומן
-  document.querySelectorAll('.btn-icon').forEach(b => b.style.display = unlocked ? '' : 'none');
-}
-function promptUnlock() {
-  const pass = prompt('הזן סיסמה להזנת נתונים:');
-  if (pass === null) return; // ביטול
-  if (pass === getPassword()) {
-    sessionStorage.setItem(UNLOCK_KEY, 'yes');
-    showToast('🔓 מנעול נפתח');
-    updateLockUI();
+function copyText(text, btn) {
+  // iOS-safe clipboard copy
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(function(){
+      btn.textContent = '✓'; setTimeout(function(){ btn.textContent = '⎘'; }, 1500);
+    }).catch(function(){ fallbackCopy(text, btn); });
   } else {
-    alert('סיסמה שגויה');
+    fallbackCopy(text, btn);
   }
 }
-function changePassword() {
-  if (!isUnlocked()) {
-    const pass = prompt('הזן סיסמה נוכחית:');
-    if (pass !== getPassword()) { alert('סיסמה שגויה'); return; }
-  }
-  const newPass = prompt('הזן סיסמה חדשה:');
-  if (!newPass) return;
-  localStorage.setItem(PASS_KEY, newPass);
-  showToast('✓ סיסמה עודכנה');
+function fallbackCopy(text, btn) {
+  var ta = document.createElement('textarea');
+  ta.value = text; ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;font-size:16px';
+  document.body.appendChild(ta); ta.focus(); ta.select();
+  try { document.execCommand('copy'); btn.textContent='✓'; setTimeout(function(){btn.textContent='⎘';},1500); } catch(e){}
+  document.body.removeChild(ta);
 }
 
+// ── SVG MAP — עובד על כל דפדפן ללא אינטרנט ──
+function buildMap() {
+  var container = document.getElementById('map-container');
+  var W = container.offsetWidth || container.parentElement && container.parentElement.offsetWidth || window.innerWidth || 800;
+  if (W < 100) W = 800;
+  var H = 340, PAD = 50;
 
-// עוטף סכום ב-LTR כדי ש-€ יופיע תמיד משמאל למספר
-function eur(n){ const s=typeof n==='string'?n:parseFloat(n||0).toFixed(2); return s+' €'; }
-function eurStr(n){return `\u200E€${typeof n==='string'?n:parseFloat(n||0).toFixed(2)}`;} // לטקסט רגיל
-
-function formatDateDisplay(val) {
-  if (!val) return '—';
-  const s = String(val);
-  // ISO format: 2026-06-08T21:00:00.000Z or 2026-06-08
-  const match = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
-  if (match) return `${match[3]}/${match[2]}/${match[1]}`;
-  return s;
-}
-function setSyncStatus(state,msg){
-  const dot=document.getElementById('syncDot');const txt=document.getElementById('syncMsg');
-  dot.className='sync-dot '+state;txt.textContent=msg;
-}
-function timeNow(){const n=new Date();return n.getHours()+':'+String(n.getMinutes()).padStart(2,'0');}
-function setAddBtn(enabled){const b=document.getElementById('addBtn');b.disabled=!enabled;b.textContent=enabled?'+ רשום הוצאה':'... שומר';}
-function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
-
-// ══ INIT ══
-document.getElementById('fDate').valueAsDate=new Date();
-initSetupBanner();
-initLock();
-if(SCRIPT_URL) loadAll(); else refresh();
-setInterval(()=>{ if(SCRIPT_URL) loadAll(); }, 60000);
-</script>
-
-<script>
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', function() {
-    navigator.serviceWorker.register('./service-worker.js');
+  var pts = [], seen = {};
+  DATA.forEach(function(d) {
+    var pairs = d.type === 'Spot'
+      ? [[d.coordTo, d.to]]
+      : [[d.coordFrom, d.from], [d.coordTo, d.to]];
+    pairs.forEach(function(pair) {
+      var c = pair[0], name = pair[1];
+      if (!c) return;
+      var p = parseCoord(c); if (!p) return;
+      var key = p.lat.toFixed(3)+','+p.lng.toFixed(3);
+      if (seen[key]) return; seen[key] = true;
+      pts.push({lat:p.lat, lng:p.lng, name:name||'', type:d.type, leg:d.leg});
+    });
   });
+  if (!pts.length) return;
+
+  var lats = pts.map(function(p){return p.lat;});
+  var lngs = pts.map(function(p){return p.lng;});
+  var minLat=Math.min.apply(null,lats), maxLat=Math.max.apply(null,lats);
+  var minLng=Math.min.apply(null,lngs), maxLng=Math.max.apply(null,lngs);
+  var latR = maxLat-minLat||0.1, lngR = maxLng-minLng||0.1;
+
+  function sv(lat,lng){
+    return { x: PAD+(lng-minLng)/lngR*(W-PAD*2), y: H-PAD-(lat-minLat)/latR*(H-PAD*2) };
+  }
+
+  // Route polyline from LEG sequence
+  var legPts = [];
+  DATA.filter(function(d){return d.type==='Leg';}).forEach(function(d){
+    [d.coordFrom,d.coordTo].forEach(function(c){
+      if(!c) return; var p=parseCoord(c); if(!p) return;
+      var s=sv(p.lat,p.lng);
+      legPts.push(s.x.toFixed(1)+','+s.y.toFixed(1));
+    });
+  });
+  var dedup = legPts.filter(function(v,i){return i===0||v!==legPts[i-1];});
+
+  var circles = '';
+  pts.forEach(function(p){
+    var s = sv(p.lat,p.lng);
+    var isStart = p.name==='Lefkas Marina';
+    var col = isStart ? '#1E9E6B' : (p.type==='Spot' ? '#E08A3C' : '#00B4D8');
+    var r = isStart ? 8 : (p.type==='Spot' ? 5 : 6);
+    var lbl = p.name.length>18 ? p.name.slice(0,17)+'…' : p.name;
+    circles +=
+      '<circle cx="'+s.x.toFixed(1)+'" cy="'+s.y.toFixed(1)+'" r="'+(r+5)+'" fill="'+col+'" opacity="0.12"/>'
+     +'<circle cx="'+s.x.toFixed(1)+'" cy="'+s.y.toFixed(1)+'" r="'+r+'" fill="'+col+'" opacity="0.95"/>'
+     +'<text x="'+(s.x+r+4).toFixed(1)+'" y="'+(s.y+4).toFixed(1)+'" font-size="9" fill="rgba(255,255,255,0.65)" font-family="Heebo,Arial,sans-serif">'+lbl+'</text>';
+  });
+
+  container.style.background='linear-gradient(160deg,#07182A 0%,#0B2536 50%,#061320 100%)';
+  container.innerHTML =
+    '<svg viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:'+H+'px;display:block">'
+   +'<defs>'
+   +'<linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="100%">'
+   +'<stop offset="0%" stop-color="#00B4D8"/><stop offset="100%" stop-color="#0077B6"/></linearGradient>'
+   +'</defs>'
+   +'<rect width="'+W+'" height="'+H+'" fill="rgba(14,165,233,0.03)"/>'
+   +'<line x1="0" y1="'+Math.round(H/2)+'" x2="'+W+'" y2="'+Math.round(H/2)+'" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>'
+   +'<line x1="'+Math.round(W/2)+'" y1="0" x2="'+Math.round(W/2)+'" y2="'+H+'" stroke="rgba(255,255,255,0.04)" stroke-width="1"/>'
+   +'<polyline points="'+dedup.join(' ')+'" stroke="url(#rg)" stroke-width="2.5" fill="none" stroke-dasharray="8,4" opacity="0.85"/>'
+   +circles
+   +'<text x="12" y="'+(H-10)+'" font-size="9" fill="rgba(255,255,255,0.3)" font-family="Heebo,Arial,sans-serif">מפה סכמטית · Ionian Sea · Greece</text>'
+   +'</svg>';
+
+  // Try to upgrade to Leaflet (real map) if online
+  loadLeafletAsync();
 }
+
+// ── LEAFLET ASYNC UPGRADE — bonus אם יש אינטרנט ──
+function loadLeafletAsync() {
+  if (window.location.protocol === "file:") return;
+  if (typeof L !== 'undefined') { upgradeToLeaflet(); return; }
+  var css = document.createElement('link');
+  css.rel='stylesheet'; css.href='https://unpkg.com/leaflet@1.9.4/dist/leaflet.css'; css.crossOrigin='anonymous';
+  var script = document.createElement('script');
+  script.src='https://unpkg.com/leaflet@1.9.4/dist/leaflet.js'; script.crossOrigin='anonymous';
+  script.onload = function(){ setTimeout(upgradeToLeaflet, 150); };
+  script.onerror = function(){ /* נשאר SVG */ };
+  document.head.appendChild(css);
+  document.head.appendChild(script);
+}
+
+function upgradeToLeaflet() {
+  if (typeof L === 'undefined') return;
+  try {
+    var container = document.getElementById('map-container');
+    container.innerHTML = '<div id="lmap" style="height:340px"></div>';
+    var map = L.map('lmap', {zoomControl:true,attributionControl:true});
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap',maxZoom:17}).addTo(map);
+
+    function mkI(col,sz){ return L.divIcon({html:'<div style="width:'+sz+'px;height:'+sz+'px;background:'+col+';border:2px solid #fff;border-radius:50%;box-shadow:0 0 8px '+col+'99"></div>',iconSize:[sz,sz],iconAnchor:[sz/2,sz/2],className:''}); }
+    var iLeg=mkI('#00B4D8',12), iSpot=mkI('#E08A3C',10), iStart=mkI('#1E9E6B',14);
+
+    var legLL=[], allLL=[], added={};
+    DATA.filter(function(d){return d.type==='Leg';}).forEach(function(d){
+      [d.coordFrom,d.coordTo].forEach(function(c){ var p=parseCoord(c); if(p){legLL.push([p.lat,p.lng]);allLL.push([p.lat,p.lng]);} });
+    });
+    if(legLL.length>1) L.polyline(legLL,{color:'#00B4D8',weight:2.5,opacity:0.75,dashArray:'8,4'}).addTo(map);
+
+    DATA.forEach(function(d){
+      var cs=d.type==='Spot'?[d.coordTo]:[d.coordFrom,d.coordTo];
+      cs.forEach(function(c,i){
+        var p=parseCoord(c); if(!p) return;
+        var k=p.lat.toFixed(4)+','+p.lng.toFixed(4); if(added[k]) return; added[k]=true;
+        allLL.push([p.lat,p.lng]);
+        var nm=d.type==='Spot'?d.to:(i===0?d.from:d.to);
+        var ic=nm==='Lefkas Marina'?iStart:(d.type==='Spot'?iSpot:iLeg);
+        var nav=d.navily?'<br><a href="'+d.navily+'" target="_blank" style="color:#00B4D8;font-size:11px">⚓ Navily</a>':'';
+        L.marker([p.lat,p.lng],{icon:ic}).addTo(map).bindPopup(
+          '<div style="font-family:Heebo,Arial,sans-serif;min-width:140px">'
+         +'<strong style="font-size:13px">'+nm+'</strong><br>'
+         +'<span style="font-size:10px;color:#aaa">'+(d.type==='Spot'?'📍 SPOT':'⚓ '+d.leg)+'</span><br>'
+         +(d.dist?'<span style="font-size:11px">📏 '+d.dist+' NM</span><br>':'')
+         +(d.dur?'<span style="font-size:11px">⏱ '+d.dur+'</span><br>':'')
+         +'<span style="font-size:10px;color:#aaa">'+p.lat.toFixed(4)+'°N '+p.lng.toFixed(4)+'°E</span>'+nav
+         +'</div>',{maxWidth:200});
+      });
+    });
+    if(allLL.length) map.fitBounds(allLL,{padding:[30,30]});
+    document.getElementById('map-label').textContent='OpenStreetMap · לחץ על נקודה לפרטים';
+  } catch(e){ console.warn('Leaflet failed:',e.message); }
+}
+
+// ── SIDEBAR TIMELINE ──
+function buildTimeline() {
+  var byDay={};
+  DATA.filter(function(d){return d.type==='Leg'&&d.date;}).forEach(function(d){
+    if(!byDay[d.date]) byDay[d.date]={day:d.day,legs:[]};
+    byDay[d.date].legs.push(d);
+  });
+  var html='<div class="tl-title">לוח זמנים</div>';
+  Object.keys(byDay).sort().forEach(function(date){
+    var g=byDay[date], p=date.split('-');
+    var nm=g.legs.reduce(function(s,l){return s+(parseFloat(l.dist)||0);},0).toFixed(1);
+    var last=g.legs[g.legs.length-1];
+    html+='<div class="tl-item" onclick="filterByDate(\''+date+'\')">'
+      +'<div class="tl-dot"></div>'
+      +'<div>'
+      +'<div class="tl-date">'+p[2]+'/'+p[1]+' · '+g.day+'</div>'
+      +'<div class="tl-name">'+(g.legs[0].from||'')+' → '+(last.to||'')+'</div>'
+      +'<div class="tl-date">'+nm+' NM</div>'
+      +'</div></div>';
+  });
+  document.getElementById('timeline-items').innerHTML=html;
+}
+
+// ── PROGRESS ──
+function buildProgress() {
+  var byDay={};
+  DATA.filter(function(d){return d.type==='Leg'&&d.date;}).forEach(function(d){
+    if(!byDay[d.date]) byDay[d.date]={nm:0};
+    byDay[d.date].nm+=parseFloat(d.dist)||0;
+  });
+  var total=Object.keys(byDay).reduce(function(s,k){return s+byDay[k].nm;},0)||1;
+  var html='';
+  Object.keys(byDay).sort().forEach(function(date){
+    var g=byDay[date], p=date.split('-');
+    var pct=Math.round(g.nm/total*100);
+    html+='<div class="progress-item">'
+      +'<div class="progress-item-label">'+p[2]+'/'+p[1]+'</div>'
+      +'<div class="progress-item-bar"><div class="progress-item-fill" style="width:'+pct+'%"></div></div>'
+      +'<div class="progress-item-val">'+g.nm.toFixed(1)+'</div>'
+      +'</div>';
+  });
+  document.getElementById('progress-items').innerHTML=html;
+}
+
+// ── ETA ──
+// ── ROUTE INTELLIGENCE ──
+function buildIntel() {
+  var legs=DATA.filter(function(d){return d.type==='Leg';});
+  var byDay={};
+  legs.forEach(function(d){if(!byDay[d.date])byDay[d.date]=0; byDay[d.date]+=parseFloat(d.dist)||0;});
+  var sorted=Object.keys(byDay).map(function(k){return[k,byDay[k]];}).sort(function(a,b){return b[1]-a[1];});
+  var maxDay=sorted[0];
+  var maxLeg=legs.slice().sort(function(a,b){return(parseFloat(b.dist)||0)-(parseFloat(a.dist)||0);})[0];
+  var totalNM=legs.reduce(function(s,d){return s+(parseFloat(d.dist)||0);},0);
+  var nDays=Object.keys(byDay).length||1;
+  var totalMins=legs.reduce(function(s,d){
+    var m=d.dur&&d.dur.match(/(\d+)h[:\s]*(\d+)/);
+    return s+(m?parseInt(m[1])*60+parseInt(m[2]):0);
+  },0);
+  var mp=maxDay?maxDay[0].split('-'):['','',''];
+  document.getElementById('intel-rows').innerHTML=
+    '<div class="intel-row"><span style="color:var(--text3)">יום ארוך ביותר</span><span style="color:var(--text);font-weight:600">'+(mp[2]||'')+'/'+( mp[1]||'')+' — '+(maxDay?maxDay[1].toFixed(1):0)+' NM</span></div>'
+   +'<div class="intel-row"><span style="color:var(--text3)">מקטע ארוך ביותר</span><span style="color:var(--text);font-weight:600">'+(maxLeg?maxLeg.leg:'')+' — '+(maxLeg?maxLeg.dist:0)+' NM</span></div>'
+   +'<div class="intel-row"><span style="color:var(--text3)">ממוצע יומי</span><span style="color:var(--text);font-weight:600">'+(totalNM/nDays).toFixed(1)+' NM</span></div>'
+   +'<div class="intel-row"><span style="color:var(--text3)">סה"כ זמן הפלגה</span><span style="color:var(--accent2);font-weight:600">'+Math.floor(totalMins/60)+'h '+totalMins%60+"'</span></div>";
+}
+
+// ── FILTERS ──
+function setType(t,btn){
+  activeType=t;
+  document.querySelectorAll('.type-btn').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  applyFilters();
+}
+function resetFilters(){
+  document.getElementById('date-filter').value='';
+  document.getElementById('place-filter').value='';
+  activeType='all';
+  document.querySelectorAll('.type-btn').forEach(function(b,i){b.classList.toggle('active',i===0);});
+  applyFilters();
+}
+function filterByDate(date){
+  document.getElementById('date-filter').value=date;
+  applyFilters();
+  jumpTo('legs-section');
+}
+
+function applyFilters(){
+  var dateVal=document.getElementById('date-filter').value;
+  var placeVal=document.getElementById('place-filter').value.toLowerCase().trim();
+  var filtered=DATA.filter(function(d){ if(d.leg&&d.leg.indexOf('טיסה')!==-1) return false;
+    if(dateVal&&d.date!==dateVal) return false;
+    if(activeType!=='all'&&d.type!==activeType) return false;
+    if(placeVal&&(d.from+' '+d.to).toLowerCase().indexOf(placeVal)===-1) return false;
+    return true;
+  });
+  document.getElementById('results-count').textContent=filtered.length>0?filtered.length+' תוצאות':'';
+  var container=document.getElementById('results');
+  if(!filtered.length){container.innerHTML='<div class="empty">😶 לא נמצאו תוצאות</div>';return;}
+
+  var byDay={};
+  filtered.forEach(function(d){if(!byDay[d.date])byDay[d.date]={day:d.day,items:[]};byDay[d.date].items.push(d);});
+  var html='';
+  Object.keys(byDay).sort().forEach(function(date){
+    var group=byDay[date], parts=(date||'--').split('-');
+    var dayNM=group.items.filter(function(i){return i.type==='Leg';}).reduce(function(s,i){return s+(parseFloat(i.dist)||0);},0);
+    html+='<div class="day-header">'
+      +'<span class="day-badge">'+(parts[2]||'')+'/'+( parts[1]||'')+'</span>'
+      +'<span class="day-name">'+(group.day||'')+'</span>'
+      +(dayNM>0?'<span class="day-dist">'+dayNM.toFixed(1)+' NM</span>':'')
+      +'</div>';
+
+    group.items.forEach(function(item){
+      var isSpot=item.type==='Spot';
+      var coord=parseCoord(item.coordTo);
+      var displayCoords=isSpot?item.coordTo:(item.coordFrom&&item.coordTo?item.coordFrom+'  →  '+item.coordTo:item.coordTo);
+      var badgeLabel=isSpot?'📍 SPOT':'⚓ '+item.leg;
+      var titleName=isSpot?item.to:item.from+' → '+item.to;
+
+      html+='<div class="leg-section">'
+        +'<div class="leg-top">'
+        +'<span class="leg-badge '+(isSpot?'spot-type':'leg-type')+'">'+badgeLabel+'</span>'
+        +'<span class="leg-name">'+titleName+'</span>'
+        +'</div>';
+
+      if(!isSpot){
+        html+='<div class="leg-row">📍 <span class="place">'+item.from+'</span> <span class="leg-row-arrow">→</span> <span class="place">'+item.to+'</span></div>';
+        if(item.dist||item.dur){
+          html+='<div class="leg-meta">';
+          if(item.dist) html+='<div class="leg-field">↔ מרחק: <span>'+item.dist+' NM</span></div>';
+          if(item.dur)  html+='<div class="leg-field">⏱ זמן: <span>'+item.dur+'</span></div>';
+          html+='</div>';
+        }
+      }
+
+      if(displayCoords){
+        html+='<div class="leg-row leg-row-coords">🧭 <span class="coord-text">'+displayCoords+'</span>'
+          +'<button class="copy-btn" onclick="copyText('+JSON.stringify(displayCoords)+',this)" title="העתק">⎘</button>'
+          +'</div>';
+      }
+
+      html+='<div class="leg-actions">';
+      if(item.navily) html+='<a href="'+item.navily+'" class="action-btn primary" target="_blank" rel="noopener">⚓ Navily</a>';
+      if(coord){
+        html+='<a href="https://www.google.com/maps?q='+coord.lat.toFixed(5)+','+coord.lng.toFixed(5)+'" class="action-btn" target="_blank" rel="noopener">🗺 Google Maps</a>';
+        html+='<a href="https://www.windy.com/?'+coord.lat.toFixed(5)+','+coord.lng.toFixed(5)+',12" class="action-btn" target="_blank" rel="noopener">💨 Windy</a>';
+      }
+      html+='</div></div>';
+    });
+  });
+  container.innerHTML=html;
+}
+
+// ── MOBILE DRAWER ──
+function openDrawer(){ document.getElementById('sidebar').classList.add('open'); document.getElementById('drawer-overlay').classList.add('open'); }
+function closeDrawer(){ document.getElementById('sidebar').classList.remove('open'); document.getElementById('drawer-overlay').classList.remove('open'); }
+
+
+
+// ══════════════════════════════════════════════
+// GOOGLE SHEETS — קריאה אוטומטית בכל פתיחה
+// ══════════════════════════════════════════════
+var SHEET1_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQ7Uil4saNoQOIXeIVATReHQMn2-FeneSq9-uh-3xBE5C1Gar8zmdIwZeQyTMAZQQ/pub?gid=1712824016&single=true&output=csv";
+var CSV_URL = SHEET1_CSV_URL;
+
+function parseCSV(text) {
+  var lines = text.trim().split(/\r?\n/);
+  if (lines.length < 2) return [];
+  function parseLine(line) {
+    var vals = [], cur = '', inQ = false;
+    for (var j = 0; j < line.length; j++) {
+      var ch = line[j];
+      if (ch === '"' && inQ && line[j + 1] === '"') { cur += '"'; j++; }
+      else if (ch === '"') { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { vals.push(cur.trim()); cur = ''; }
+      else { cur += ch; }
+    }
+    vals.push(cur.trim());
+    return vals.map(function(v){ return v.replace(/^"|"$/g,'').trim(); });
+  }
+  var headers = parseLine(lines[0]);
+  var rows = [];
+  for (var i = 1; i < lines.length; i++) {
+    var vals = parseLine(lines[i]);
+    if (vals.every(function(v){ return !v; })) continue;
+    var row = {};
+    headers.forEach(function(h,idx){ row[h] = vals[idx] || ''; });
+    rows.push(row);
+  }
+  return rows;
+}
+
+function findVal(row, keys) {
+  for (var i=0; i<keys.length; i++) {
+    var k = keys[i];
+    if (row[k] !== undefined && row[k] !== '') return row[k];
+    for (var h in row) {
+      if (h.toLowerCase().indexOf(String(k).toLowerCase()) !== -1 && row[h] !== '') return row[h];
+    }
+  }
+  return '';
+}
+
+function rowToData(row) {
+  var leg = findVal(row, ['מקטע','Leg','leg']);
+  var from = findVal(row, ['מוצא','Departure','from','From']);
+  var to = findVal(row, ['יעד','Destination','to','To']);
+  if (!leg) return null;
+  if (['Leg','Departure','Destination'].indexOf(leg) !== -1 || from === 'Departure' || to === 'Destination') return null;
+
+  var type = (leg && leg.toLowerCase().indexOf('spot') !== -1) ? 'Spot' : 'Leg';
+  var dateRaw = findVal(row, ['תאריך','Date','date']);
+  var dateISO = '';
+  if (dateRaw) {
+    // Parse locally — no UTC shift (Israel is UTC+3)
+    var ds = String(dateRaw).trim();
+    var dm = ds.match(/(\d{1,2})[\/\.\-](\d{1,2})[\/\.\-](\d{2,4})/);
+    if (dm) {
+      var yr = dm[3].length===2?'20'+dm[3]:dm[3];
+      dateISO = yr+'-'+dm[2].padStart(2,'0')+'-'+dm[1].padStart(2,'0');
+    } else {
+      var isoM = ds.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (isoM) dateISO = isoM[0];
+    }
+  }
+  var dayNames = {'0':'יום ראשון','1':'יום שני','2':'יום שלישי','3':'יום רביעי','4':'יום חמישי','5':'יום שישי','6':'שבת'};
+  var day = findVal(row, ['יום','Day','day']).replace(/\u00a0/g, ' ');
+  if (!day && dateISO) {
+    var dd = new Date(dateISO+'T12:00:00');
+    day = dayNames[String(dd.getDay())] || '';
+  }
+  return {
+    date: dateISO,
+    day: day,
+    leg: leg,
+    type: type,
+    from: from,
+    to: to,
+    coordFrom: findVal(row, ['קורדינטות מוצא','Start_Coordinates','coordFrom','coord from']),
+    coordTo: findVal(row, ['קורדינטות יעד','End_Coordinates','coordTo','coord to']),
+    dist: findVal(row, ['מרחק','Distance_NM','distance','dist']).replace(/[^\d.]/g,''),
+    dur: findVal(row, ['זמן הפלגה מתוכנן','Duration','duration','dur','זמן']),
+    navily: findVal(row, ['קישור  למידע','קישור למידע','Info_URL','navily','url','קישור'])
+  };
+}
+
+function loadFromSheets(onDone) {
+  // כשנפתח מקומית (file://) — עובר ישר לנתונים שמורים
+  if (window.location.protocol === 'file:') { onDone(null, false); return; }
+  var xhr = new XMLHttpRequest();
+  xhr.open('GET', CSV_URL, true);
+  xhr.timeout = 8000;
+  xhr.onload = function() {
+    if (xhr.status === 200 && xhr.responseText) {
+      try {
+        var rows = parseCSV(xhr.responseText);
+        var mapped = rows.map(rowToData).filter(Boolean);
+        if (mapped.length > 0) {
+          onDone(mapped, true);
+          return;
+        }
+      } catch(e) {}
+    }
+    onDone(null, false);
+  };
+  xhr.onerror = function() { onDone(null, false); };
+  xhr.ontimeout = function() { onDone(null, false); };
+  xhr.send();
+}
+
+function updateStatusPill(live) {
+  var dot = document.getElementById('status-dot');
+  var txt = document.getElementById('status-text');
+  if (!dot || !txt) return;
+  if (live) {
+    dot.style.background = '#1E9E6B';
+    dot.style.boxShadow = '0 0 6px rgba(30,158,107,0.9)';
+    txt.textContent = 'נתונים חיים מ-Sheets';
+  } else {
+    dot.style.background = '#E08A3C';
+    dot.style.boxShadow = '0 0 6px rgba(224,138,60,0.8)';
+    txt.textContent = 'מוכן להפלגה';
+  }
+}
+
+function formatDateShort(dateISO) {
+  if (!dateISO) return '';
+  var p = dateISO.split('-');
+  return p.length === 3 ? p[2]+'/'+p[1] : dateISO;
+}
+
+function formatDateRange(d1, d2) {
+  if (!d1) return '';
+  var months = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+  var p1=d1.split('-'), p2=d2?d2.split('-'):p1;
+  return parseInt(p1[2])+'–'+parseInt(p2[2])+' '+months[parseInt(p1[1])-1]+' '+p1[0];
+}
+
+function updateFlightCards() {
+  var flights = DATA.filter(function(d){
+    return d.leg && d.leg.indexOf('טיסה') !== -1;
+  });
+  function fillCard(prefix, f) {
+    if (!f) return;
+    var months = ['ינואר','פברואר','מרץ','אפריל','מאי','יוני','יולי','אוגוסט','ספטמבר','אוקטובר','נובמבר','דצמבר'];
+    var dateEl=document.getElementById(prefix+'-date');
+    var routeEl=document.getElementById(prefix+'-route');
+    var depEl=document.getElementById(prefix+'-dep');
+    var arrEl=document.getElementById(prefix+'-arr');
+    if (dateEl && f.date) {
+      var p=f.date.split('-');
+      dateEl.textContent = parseInt(p[2])+' '+months[parseInt(p[1])-1];
+    }
+    if (routeEl) routeEl.textContent = (f.from||'—')+' → '+(f.to||'—');
+    if (depEl)   depEl.textContent   = f.coordFrom || '—';
+    if (arrEl)   arrEl.textContent   = f.coordTo   || '—';
+  }
+  fillCard('flight-out',  flights[0]||null);
+  fillCard('flight-back', flights[flights.length-1]||null);
+}
+
+function updateSummaryMetrics() {
+  var legs = DATA.filter(function(d){
+    if (d.type !== 'Leg') return false;
+    if (d.leg && d.leg.indexOf('טיסה') !== -1) return false;
+    return true;
+  });
+  var spots = DATA.filter(function(d){ return d.type === 'Spot'; });
+  var dates = {};
+  legs.forEach(function(d){ if (d.date) dates[d.date] = true; });
+  var sortedDates = Object.keys(dates).sort();
+  var totalNM = legs.reduce(function(sum,d){ return sum + (parseFloat(d.dist) || 0); }, 0);
+  var nmText = totalNM ? totalNM.toFixed(1) : '0';
+
+  document.getElementById('hero-nm').textContent = nmText;
+
+  var pillEl = document.getElementById('hero-pill-days');
+  if (pillEl && sortedDates.length > 0) {
+    pillEl.textContent = sortedDates.length + ' ימי הפלגה · ' + formatDateRange(sortedDates[0], sortedDates[sortedDates.length-1]);
+  }
+  updateFlightCards();
+  document.getElementById('kpi-nm').textContent = nmText;
+  document.getElementById('kpi-days').textContent = sortedDates.length;
+  document.getElementById('kpi-legs').textContent = legs.length;
+  document.getElementById('kpi-spots').textContent = spots.length;
+  document.getElementById('kpi-legs-sub').textContent = sortedDates.length + ' ימי הפלגה פעילים';
+  if (sortedDates.length) {
+    document.getElementById('kpi-days-sub').textContent = formatDateShort(sortedDates[0]) + '–' + formatDateShort(sortedDates[sortedDates.length - 1]);
+  }
+}
+
+// ── INIT ──
+function runDashboard() {
+  updateSummaryMetrics();
+  buildTimeline();
+  buildProgress();
+  buildIntel();
+  buildMap();
+  applyFilters();
+  setTimeout(function(){
+    var bar = document.getElementById('hero-bar');
+    if (bar) bar.style.width = '100%';
+  }, 400);
+}
+
+// טעינה מ-Sheets, fallback לנתונים מקומיים
+loadFromSheets(function(sheetData, live) {
+  if (sheetData && sheetData.length > 0) {
+    DATA = sheetData;
+  }
+  updateStatusPill(live);
+  runDashboard();
+});
 </script>
   <script>
     if ('serviceWorker' in navigator) {
@@ -758,5 +1006,4 @@ if ('serviceWorker' in navigator) {
     }
   </script>
 </body>
-
 </html>
