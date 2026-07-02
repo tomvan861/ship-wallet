@@ -154,8 +154,6 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text-light);font-fam
 .sync-dot.spin{background:var(--accent);animation:pulse .8s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-/* lock notice */
-#lockNotice{text-align:center;margin-top:12px;font-size:12px;color:rgba(255,255,255,0.35);font-family:var(--font-h)}
 #lockNotice span{color:var(--accent);cursor:pointer}
 #lockNotice span:hover{text-decoration:underline}
 
@@ -275,9 +273,6 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text-light);font-fam
       <div class="f full"><label>הערות (אופציונלי)</label><input type="text" id="fNotes" placeholder="פירוט הוצאה"></div>
     </div>
     <button class="btn btn-primary" id="addBtn" onclick="addEntry()">+ רשום הוצאה</button>
-    <div id="lockNotice" style="display:none;text-align:center;margin-top:10px;font-size:12px;color:var(--rope);font-family:var(--font-h)">
-      🔒 <span style="cursor:pointer;text-decoration:underline" onclick="promptUnlock()">לחץ לפתיחת מנעול להזנה</span>
-    </div>
   </div>
 
   <!-- CHART -->
@@ -306,7 +301,6 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text-light);font-fam
 
   <div class="bottom-bar">
     <button class="btn btn-sm" onclick="exportCSV()">⬇ ייצוא CSV</button>
-    <button class="btn btn-sm" onclick="changePassword()">🔑 שנה סיסמה</button>
   </div>
 
 </div>
@@ -362,7 +356,7 @@ let editId        = null;
 let sailorsVisible = false;
 let donut, bar;
 let configSaveTimer = null;
-let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxCKECoNcRtC9fbPlS7IET8EXn5M86a3cF8tdNTyysnMiGpqHrnlpdGCXRdLuC1pJsIKQ/exec';
+let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL67cddSyMNN3Od43MLZlfhodMcgDyKkPygqu-LKCdtpAsjcXHUN2eIhrmZH_DmORA_A/exec';
 
 // ══ SETUP URL ══
 function confirmScriptUrl() {
@@ -671,53 +665,7 @@ function exportCSV(){
   showToast('✓ CSV הורד');
 }
 
-// ══ PASSWORD / LOCK ══
-const DEFAULT_PASSWORD = '5';
-const PASS_KEY = 'shipwallet_pass';
-const UNLOCK_KEY = 'shipwallet_unlocked';
 
-function getPassword() {
-  return localStorage.getItem(PASS_KEY) || DEFAULT_PASSWORD;
-}
-function isUnlocked() {
-  return sessionStorage.getItem(UNLOCK_KEY) === 'yes';
-}
-function initLock() {
-  updateLockUI();
-}
-function updateLockUI() {
-  const unlocked = isUnlocked();
-  const addBtn   = document.getElementById('addBtn');
-  const notice   = document.getElementById('lockNotice');
-  addBtn.style.display  = unlocked ? 'flex'  : 'none';
-  notice.style.display  = unlocked ? 'none'  : 'block';
-  // הסתר/הצג כפתורי עריכה ומחיקה ביומן
-  document.querySelectorAll('.btn-icon').forEach(b => b.style.display = unlocked ? '' : 'none');
-}
-function promptUnlock() {
-  const pass = prompt('הזן סיסמה להזנת נתונים:');
-  if (pass === null) return; // ביטול
-  if (pass === getPassword()) {
-    sessionStorage.setItem(UNLOCK_KEY, 'yes');
-    showToast('🔓 מנעול נפתח');
-    updateLockUI();
-  } else {
-    alert('סיסמה שגויה');
-  }
-}
-function changePassword() {
-  if (!isUnlocked()) {
-    const pass = prompt('הזן סיסמה נוכחית:');
-    if (pass !== getPassword()) { alert('סיסמה שגויה'); return; }
-  }
-  const newPass = prompt('הזן סיסמה חדשה:');
-  if (!newPass) return;
-  localStorage.setItem(PASS_KEY, newPass);
-  showToast('✓ סיסמה עודכנה');
-}
-
-
-// עוטף סכום ב-LTR כדי ש-€ יופיע תמיד משמאל למספר
 function eur(n){ const s=typeof n==='string'?n:parseFloat(n||0).toFixed(2); return s+' €'; }
 function eurStr(n){return `\u200E€${typeof n==='string'?n:parseFloat(n||0).toFixed(2)}`;} // לטקסט רגיל
 
@@ -740,7 +688,6 @@ function showToast(msg){const t=document.getElementById('toast');t.textContent=m
 // ══ INIT ══
 document.getElementById('fDate').valueAsDate=new Date();
 initSetupBanner();
-initLock();
 if(SCRIPT_URL) loadAll(); else refresh();
 setInterval(()=>{ if(SCRIPT_URL) loadAll(); }, 60000);
 </script>
