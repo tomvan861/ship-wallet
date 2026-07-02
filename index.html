@@ -2,7 +2,7 @@
 <html lang="he" dir="rtl">
 <head>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#1c1c1e">
+  <meta name="theme-color" content="#4a9eff">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Ship Wallet">
@@ -154,6 +154,10 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text-light);font-fam
 .sync-dot.spin{background:var(--accent);animation:pulse .8s ease-in-out infinite}
 @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
+/* lock notice */
+#lockNotice{text-align:center;margin-top:12px;font-size:12px;color:rgba(255,255,255,0.35);font-family:var(--font-h)}
+#lockNotice span{color:var(--accent);cursor:pointer}
+#lockNotice span:hover{text-decoration:underline}
 
 /* toast */
 .toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(60px);
@@ -192,17 +196,6 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text-light);font-fam
   </div>
 
 
-
-  <!-- STATUS BAR -->
-  <div id="statusBar" style="
-    display:flex;align-items:center;justify-content:space-between;
-    padding:10px 16px 6px;
-    font-family:var(--font);font-size:11px;font-weight:600;
-    color:var(--text-sub);letter-spacing:0.3px;
-    border-bottom:1px solid var(--border)">
-    <span id="infoDateTime"></span>
-    <span id="infoLastAction" style="color:var(--text-dim)">ממתין לנתונים...</span>
-  </div>
   <!-- SYNC STATUS -->
   <div class="sync-bar">
     <div class="sync-dot" id="syncDot"></div>
@@ -282,6 +275,9 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text-light);font-fam
       <div class="f full"><label>הערות (אופציונלי)</label><input type="text" id="fNotes" placeholder="פירוט הוצאה"></div>
     </div>
     <button class="btn btn-primary" id="addBtn" onclick="addEntry()">+ רשום הוצאה</button>
+    <div id="lockNotice" style="display:none;text-align:center;margin-top:10px;font-size:12px;color:var(--rope);font-family:var(--font-h)">
+      🔒 <span style="cursor:pointer;text-decoration:underline" onclick="promptUnlock()">לחץ לפתיחת מנעול להזנה</span>
+    </div>
   </div>
 
   <!-- CHART -->
@@ -310,6 +306,7 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text-light);font-fam
 
   <div class="bottom-bar">
     <button class="btn btn-sm" onclick="exportCSV()">⬇ ייצוא CSV</button>
+    <button class="btn btn-sm" onclick="changePassword()">🔑 שנה סיסמה</button>
   </div>
 
 </div>
@@ -345,29 +342,6 @@ html,body{min-height:100vh;background:var(--bg);color:var(--text-light);font-fam
 <div class="toast" id="toast"></div>
 
 <script>
-
-// ══ INFO BAR ══
-function updateInfoBar(lastAction) {
-  const now = new Date();
-  const days = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
-  const day = days[now.getDay()];
-  const date = String(now.getDate()).padStart(2,'0') + '/' +
-               String(now.getMonth()+1).padStart(2,'0') + '/' + now.getFullYear();
-  const time = String(now.getHours()).padStart(2,'0') + ':' +
-               String(now.getMinutes()).padStart(2,'0');
-  const el  = document.getElementById('infoDateTime');
-  const el2 = document.getElementById('infoLastAction');
-  if (el)  el.textContent  = 'יום ' + day + ' · ' + date + ' · ' + time;
-  if (lastAction) {
-    if (el2) el2.textContent = '⚡ ' + lastAction;
-    localStorage.setItem('shipwallet_lastaction', lastAction);
-  } else {
-    const saved = localStorage.getItem('shipwallet_lastaction');
-    if (el2) el2.textContent = saved ? ('⚡ ' + saved) : '';
-  }
-}
-setInterval(function(){ updateInfoBar(null); }, 30000);
-
 // ══ CATEGORIES ══
 const CAT = {
   super: {label:'מזון',             emoji:'🛒', color:'#1d9e75', bg:'rgba(29,158,117,0.18)'},
@@ -388,7 +362,7 @@ let editId        = null;
 let sailorsVisible = false;
 let donut, bar;
 let configSaveTimer = null;
-let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyL67cddSyMNN3Od43MLZlfhodMcgDyKkPygqu-LKCdtpAsjcXHUN2eIhrmZH_DmORA_A/exec';
+let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxCKECoNcRtC9fbPlS7IET8EXn5M86a3cF8tdNTyysnMiGpqHrnlpdGCXRdLuC1pJsIKQ/exec';
 
 // ══ SETUP URL ══
 function confirmScriptUrl() {
@@ -474,7 +448,7 @@ async function addEntry() {
   document.getElementById('fAmount').value   = '';
   document.getElementById('fNotes').value    = '';
   document.getElementById('fLocation').value = '';
-  showToast('✓ הוצאה נרשמה'); updateInfoBar('הוצאה נרשמה — ' + parseFloat(document.getElementById('fAmount').value).toFixed(2) + ' € · ' + (CAT[document.getElementById('fCat').value]||CAT.other).label); const _cat=CAT[document.getElementById('fCat').value]||CAT.other; setLastAction(`הוצאה נרשמה — ${_cat.label} — €${parseFloat(document.getElementById('fAmount').value||0).toFixed(2)}`);
+  showToast('✓ הוצאה נרשמה');
   refresh();
 }
 
@@ -484,7 +458,7 @@ async function deleteEntry(id) {
   entries = entries.filter(e => e.id !== id); // optimistic
   refresh();
   await api({action:'delEntry', id});
-  showToast('הוצאה נמחקה'); updateInfoBar('הוצאה נמחקה'); setLastAction('הוצאה נמחקה');
+  showToast('הוצאה נמחקה');
 }
 
 // ══ EDIT ENTRY ══
@@ -516,7 +490,7 @@ async function saveEdit() {
   if (idx !== -1) entries[idx] = {...entries[idx], ...updated}; // optimistic
   closeModal(); refresh();
   await api(updated);
-  showToast('✓ הוצאה עודכנה'); updateInfoBar('הוצאה עודכנה'); setLastAction('הוצאה עודכנה');
+  showToast('✓ הוצאה עודכנה');
 }
 
 document.getElementById('editModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
@@ -697,40 +671,76 @@ function exportCSV(){
   showToast('✓ CSV הורד');
 }
 
+// ══ PASSWORD / LOCK ══
+const DEFAULT_PASSWORD = '5';
+const PASS_KEY = 'shipwallet_pass';
+const UNLOCK_KEY = 'shipwallet_unlocked';
 
-// ══ STATUS BAR ══
-let lastActionText = 'אין פעולות עדיין';
-
-function updateStatusBar() {
-  const now = new Date();
-  const days = ['ראשון','שני','שלישי','רביעי','חמישי','שישי','שבת'];
-  const day = days[now.getDay()];
-  const date = String(now.getDate()).padStart(2,'0') + '/' +
-               String(now.getMonth()+1).padStart(2,'0') + '/' +
-               now.getFullYear();
-  const time = String(now.getHours()).padStart(2,'0') + ':' +
-               String(now.getMinutes()).padStart(2,'0');
-  const el = document.getElementById('statusDateTime');
-  if (el) el.textContent = `יום ${day} ${date} · ${time}`;
-  const la = document.getElementById('statusLastAction');
-  if (la) la.textContent = lastActionText;
+function getPassword() {
+  return localStorage.getItem(PASS_KEY) || DEFAULT_PASSWORD;
+}
+function isUnlocked() {
+  return sessionStorage.getItem(UNLOCK_KEY) === 'yes';
+}
+function initLock() {
+  updateLockUI();
+}
+function updateLockUI() {
+  const unlocked = isUnlocked();
+  const addBtn   = document.getElementById('addBtn');
+  const notice   = document.getElementById('lockNotice');
+  addBtn.style.display  = unlocked ? 'flex'  : 'none';
+  notice.style.display  = unlocked ? 'none'  : 'block';
+  // הסתר/הצג כפתורי עריכה ומחיקה ביומן
+  document.querySelectorAll('.btn-icon').forEach(b => b.style.display = unlocked ? '' : 'none');
+}
+function promptUnlock() {
+  const pass = prompt('הזן סיסמה להזנת נתונים:');
+  if (pass === null) return; // ביטול
+  if (pass === getPassword()) {
+    sessionStorage.setItem(UNLOCK_KEY, 'yes');
+    showToast('🔓 מנעול נפתח');
+    updateLockUI();
+  } else {
+    alert('סיסמה שגויה');
+  }
+}
+function changePassword() {
+  if (!isUnlocked()) {
+    const pass = prompt('הזן סיסמה נוכחית:');
+    if (pass !== getPassword()) { alert('סיסמה שגויה'); return; }
+  }
+  const newPass = prompt('הזן סיסמה חדשה:');
+  if (!newPass) return;
+  localStorage.setItem(PASS_KEY, newPass);
+  showToast('✓ סיסמה עודכנה');
 }
 
-function setLastAction(text) {
-  const now = new Date();
-  const time = String(now.getHours()).padStart(2,'0') + ':' +
-               String(now.getMinutes()).padStart(2,'0');
-  lastActionText = `${text} · ${time}`;
-  updateStatusBar();
-}
 
-setInterval(updateStatusBar, 30000);
+// עוטף סכום ב-LTR כדי ש-€ יופיע תמיד משמאל למספר
+function eur(n){ const s=typeof n==='string'?n:parseFloat(n||0).toFixed(2); return s+' €'; }
+function eurStr(n){return `\u200E€${typeof n==='string'?n:parseFloat(n||0).toFixed(2)}`;} // לטקסט רגיל
+
+function formatDateDisplay(val) {
+  if (!val) return '—';
+  const s = String(val);
+  // ISO format: 2026-06-08T21:00:00.000Z or 2026-06-08
+  const match = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (match) return `${match[3]}/${match[2]}/${match[1]}`;
+  return s;
+}
+function setSyncStatus(state,msg){
+  const dot=document.getElementById('syncDot');const txt=document.getElementById('syncMsg');
+  dot.className='sync-dot '+state;txt.textContent=msg;
+}
+function timeNow(){const n=new Date();return n.getHours()+':'+String(n.getMinutes()).padStart(2,'0');}
+function setAddBtn(enabled){const b=document.getElementById('addBtn');b.disabled=!enabled;b.textContent=enabled?'+ רשום הוצאה':'... שומר';}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),2600);}
 
 // ══ INIT ══
 document.getElementById('fDate').valueAsDate=new Date();
-updateStatusBar();
 initSetupBanner();
-updateInfoBar(null);
+initLock();
 if(SCRIPT_URL) loadAll(); else refresh();
 setInterval(()=>{ if(SCRIPT_URL) loadAll(); }, 60000);
 </script>
