@@ -412,12 +412,15 @@ async function api(params) {
 async function loadAll() {
   const data = await api({action:'getAll'});
   if (!data) return;
-  entries       = (data.entries || []).reverse(); // newest first
-  sailors       = data.sailors       || [];
-  paymentRounds = data.paymentRounds || [{id:1,label:'גבייה ראשונה',amount:350}];
-  if (!sailors.length) initDefaultSailors();
+  entries = (data.entries || []).reverse();
+  // אל תדרוס sailors/paymentRounds אם יש שמירה פעילה
+  if (!configSaveTimer) {
+    sailors       = data.sailors       || [];
+    paymentRounds = data.paymentRounds || [{id:1,label:'גבייה ראשונה',amount:350}];
+    if (!sailors.length) initDefaultSailors();
+    renderPaymentRounds();
+  }
   if (data.voyageName) document.getElementById('cfgName').value = data.voyageName;
-  renderPaymentRounds();
   refresh();
 }
 
@@ -492,7 +495,7 @@ document.getElementById('editModal').addEventListener('click', function(e){ if(e
 // ══ CONFIG SAVE (debounced) ══
 function scheduleConfigSave() {
   clearTimeout(configSaveTimer);
-  configSaveTimer = setTimeout(pushConfig, 1200);
+  configSaveTimer = setTimeout(pushConfig, 2000);
 }
 
 async function pushConfig() {
@@ -545,6 +548,7 @@ function toggleSailors() {
   sailorsVisible=!sailorsVisible;
   document.getElementById('sailorsPanel').style.display=sailorsVisible?'block':'none';
   document.getElementById('sailorsToggleBtn').textContent=sailorsVisible?'▲ הסתר':'▼ הצג';
+  if(sailorsVisible) renderSailors();
 }
 function renderSailors() {
   const list=document.getElementById('sailorsList');
